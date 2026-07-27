@@ -1,0 +1,10 @@
+timestamp: 1785182327523
+version: 0.2.0
+changeTypes: 
+  - Add
+changes: 
+  - type: Add
+    timestamp: 1785182258706
+    sha: 50a1c82b35dd8a6caeca3a876231f95267c8680e
+    shortSha: 50a1c82
+    description: Add ghd indexes list command.
