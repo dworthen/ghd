@@ -103,7 +103,7 @@ ghd install gh:OWNER/REPO/path/to/ghd.config.yaml
 
 ## Remote indexes
 
-`ghd add` can be used with any repo you have access to but requires specifying include glob patterns and an output directory. 
+`ghd add` can be used with any repo you have access to but requires specifying include glob patterns and an output directory.
 
 An index provides reusable include, exclude, and output-directory defaults. It is a YAML file stored in a GitHub repository:
 
@@ -143,7 +143,7 @@ ghd add OWNER/REPO/path/to/templates
 
 Without specifying include, exclude or output directory. Default values can be overriden
 
-```
+```sh
 ghd add OWNER/REPO/path/to/templates -o generated/my-templates
 ```
 
@@ -151,6 +151,8 @@ Manage and view the configured indexes with:
 
 ```sh
 ghd indexes get templates
+ghd indexes list
+ghd indexes list --format yaml
 ghd indexes view
 ghd indexes view templates docs
 ghd indexes view templates --format yaml
@@ -170,8 +172,9 @@ ghd add <OWNER/REPO[/path][@COMMIT_SHA]>
 ghd install [local-config=ghd.config.yaml]
   --force, -f             Download entries whose target directories exist
 
-ghd indexes get <name>                 Print a configured index location
-ghd indexes set <name> <location>      Validate and configure a named index
+ghd indexes get <name>                   Print a configured index location
+ghd indexes list [--format json|yaml]    Print configured indexes
+ghd indexes set <name> <location>        Validate and configure a named index
 ghd indexes view [names...] [--format json|yaml]
 
 ghd upgrade [--tag <tag>] [--check]
