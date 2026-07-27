@@ -12,6 +12,51 @@ pack:
   prePackCommand: "bun run build"
   dir: "./.bin-upload"
 
+npm:
+  readmeFile: "README.md"
+  licenseFile: "LICENSE"
+  packageJson:
+    name: "@d-dev/ghd"
+    version: <%= vars.gitTag %>
+    description: "Download files from GitHub."
+    license: "MIT"
+    repository: "github:dworthen/ghd"
+    homepage: "https://github.com/dworthen/ghd"
+    author: "Derek Worthen <worthend.derek@gmail.com>"
+    keywords:
+      - keyword
+      - list
+  binaryPackages:
+    linux-arm64:
+      name: "@d-dev/ghd-linux-arm64"
+      os: "linux"
+      arch: "arm64"
+    linux-x64:
+      name: "@d-dev/ghd-linux-x64"
+      os: "linux"
+      arch: "x64"
+    win-x64:
+      name: "@d-dev/ghd-win-x64"
+      os: "win32"
+      arch: "x64"
+    win-arm64:
+      name: "@d-dev/ghd-win-arm64"
+      os: "win32"
+      arch: "arm64"
+    darwin-arm64:
+      name: "@d-dev/ghd-darwin-arm64"
+      os: "darwin"
+      arch: "arm64"
+    darwin-x64:
+      name: "@d-dev/ghd-darwin-x64"
+      os: "darwin"
+      arch: "x64"
+  publish:
+    access: "public"
+    tag: "latest"
+    # "registry=https://registry.npmjs.org/": true
+    # "//registry.npmjs.org/:_authToken=<%= env.NPM_TOKEN %>": true
+
 github:
   owner: "dworthen"
   repo: "ghd"
