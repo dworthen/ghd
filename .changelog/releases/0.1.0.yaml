@@ -1,0 +1,10 @@
+timestamp: 1785161547540
+version: 0.1.0
+changeTypes: 
+  - Add
+changes: 
+  - type: Add
+    timestamp: 1785161530589
+    sha: 05db62dfb579cfc1c037dacb8afd3e23bccd102f
+    shortSha: 05db62d
+    description: Initial release
