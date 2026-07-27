@@ -1,0 +1,29 @@
+{
+  "name": "ghd",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Download files from GitHub.",
+  "type": "module",
+  "repository": "github:dworthen/ghd",
+  "scripts": {
+    "fix": "biome check --write",
+    "check": "biome check && tsc --noEmit",
+    "check:changelog": "changelog check",
+    "changelog:add": "changelog add",
+    "changelog:apply": "changelog apply",
+    "build": "bun run scripts/build.ts",
+    "pack": "bin-upload pack",
+    "publish": "bin-upload publish"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.5",
+    "@d-dev/bin-upload": "latest",
+    "@d-dev/changelog": "latest",
+    "@types/bun": "latest",
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@d-dev/roar": "latest",
+    "@inquirer/prompts": "latest"
+  }
+}

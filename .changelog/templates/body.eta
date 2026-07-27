@@ -1,0 +1,7 @@
+## <%= version %> - <%= date %>
+<% changeTypes.forEach(changeType => { %>
+### <%= changeType %>
+<% changes[changeType].forEach(change => { %>
+<%= change.shortSha %>: <%= change.description %>
+<%- }) %>
+<% }) %>

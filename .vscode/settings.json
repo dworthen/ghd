@@ -1,0 +1,10 @@
+{
+  "editor.codeActionsOnSave": {
+    "source.fixAll.biome": "explicit",
+    "source.organizeImports": "never",
+    "source.organizeImports.biome": "explicit"
+  },
+  "[json][jsonc][javascript][typescript][yaml]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  }
+}

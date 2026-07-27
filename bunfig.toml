@@ -1,0 +1,5 @@
+[run]
+bun = true
+shell = "bun"
+[define]
+IS_BINARY = "false"

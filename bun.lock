@@ -1,0 +1,131 @@
+{
+  "lockfileVersion": 1,
+  "configVersion": 1,
+  "workspaces": {
+    "": {
+      "name": "ghd",
+      "dependencies": {
+        "@d-dev/roar": "latest",
+        "@inquirer/prompts": "latest",
+      },
+      "devDependencies": {
+        "@biomejs/biome": "^2.4.5",
+        "@d-dev/bin-upload": "latest",
+        "@d-dev/changelog": "latest",
+        "@types/bun": "latest",
+        "typescript": "^5",
+      },
+    },
+  },
+  "packages": {
+    "@biomejs/biome": ["@biomejs/biome@2.5.4", "https://ms-feed-25.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@biomejs/biome/-/biome-2.5.4.tgz", { "optionalDependencies": { "@biomejs/cli-darwin-arm64": "2.5.4", "@biomejs/cli-darwin-x64": "2.5.4", "@biomejs/cli-linux-arm64": "2.5.4", "@biomejs/cli-linux-arm64-musl": "2.5.4", "@biomejs/cli-linux-x64": "2.5.4", "@biomejs/cli-linux-x64-musl": "2.5.4", "@biomejs/cli-win32-arm64": "2.5.4", "@biomejs/cli-win32-x64": "2.5.4" }, "bin": { "biome": "bin/biome" } }, "sha1-uR9PiffGVXFjF2zYQaEdtq46nqA="],
+
+    "@biomejs/cli-darwin-arm64": ["@biomejs/cli-darwin-arm64@2.5.4", "https://ms-feed-2.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@biomejs/cli-darwin-arm64/-/cli-darwin-arm64-2.5.4.tgz", { "os": "darwin", "cpu": "arm64" }, "sha1-KLQrNKeKksi/I+95prPb1WO3N40="],
+
+    "@biomejs/cli-darwin-x64": ["@biomejs/cli-darwin-x64@2.5.4", "https://ms-feed-12.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@biomejs/cli-darwin-x64/-/cli-darwin-x64-2.5.4.tgz", { "os": "darwin", "cpu": "x64" }, "sha1-6pJPWPyveH83isC/oYJoVFfxQBE="],
+
+    "@biomejs/cli-linux-arm64": ["@biomejs/cli-linux-arm64@2.5.4", "https://ms-feed-25.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@biomejs/cli-linux-arm64/-/cli-linux-arm64-2.5.4.tgz", { "os": "linux", "cpu": "arm64" }, "sha1-I5gTJg7SLtietJcFYHhTu16DuJk="],
+
+    "@biomejs/cli-linux-arm64-musl": ["@biomejs/cli-linux-arm64-musl@2.5.4", "https://ms-feed-12.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@biomejs/cli-linux-arm64-musl/-/cli-linux-arm64-musl-2.5.4.tgz", { "os": "linux", "cpu": "arm64" }, "sha1-Ih05rwU5GhcHHbcU5AXgZ1cF6a0="],
+
+    "@biomejs/cli-linux-x64": ["@biomejs/cli-linux-x64@2.5.4", "https://ms-feed-2.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@biomejs/cli-linux-x64/-/cli-linux-x64-2.5.4.tgz", { "os": "linux", "cpu": "x64" }, "sha1-RAwFuUAD5TPtbDMJfUCwSTAPpWo="],
+
+    "@biomejs/cli-linux-x64-musl": ["@biomejs/cli-linux-x64-musl@2.5.4", "https://ms-feed-25.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@biomejs/cli-linux-x64-musl/-/cli-linux-x64-musl-2.5.4.tgz", { "os": "linux", "cpu": "x64" }, "sha1-KmrwjChOp+RPcyq/WFwHpm3an1s="],
+
+    "@biomejs/cli-win32-arm64": ["@biomejs/cli-win32-arm64@2.5.4", "https://ms-feed-25.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@biomejs/cli-win32-arm64/-/cli-win32-arm64-2.5.4.tgz", { "os": "win32", "cpu": "arm64" }, "sha1-nilkO3sOejwhGM6Z5RCr4XA4XHI="],
+
+    "@biomejs/cli-win32-x64": ["@biomejs/cli-win32-x64@2.5.4", "https://ms-feed-25.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@biomejs/cli-win32-x64/-/cli-win32-x64-2.5.4.tgz", { "os": "win32", "cpu": "x64" }, "sha1-pSpUVOTgvnvQjXiKH73lKJhN8JU="],
+
+    "@d-dev/bin-upload": ["@d-dev/bin-upload@0.3.0", "https://ms-feed-12.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@d-dev/bin-upload/-/bin-upload-0.3.0.tgz", { "optionalDependencies": { "@d-dev/bin-upload-darwin-arm64": "0.3.0", "@d-dev/bin-upload-darwin-x64": "0.3.0", "@d-dev/bin-upload-linux-arm64": "0.3.0", "@d-dev/bin-upload-linux-x64": "0.3.0", "@d-dev/bin-upload-win-arm64": "0.3.0", "@d-dev/bin-upload-win-x64": "0.3.0" }, "bin": { "bin-upload": "index.js" } }, "sha1-cZNOanmEi/OpcPc6R9v8OM7DzHU="],
+
+    "@d-dev/bin-upload-darwin-arm64": ["@d-dev/bin-upload-darwin-arm64@0.3.0", "https://ms-feed-12.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@d-dev/bin-upload-darwin-arm64/-/bin-upload-darwin-arm64-0.3.0.tgz", { "os": "darwin", "cpu": "arm64" }, "sha1-ZnSR9Uy78udrKMeYgHSnpzo2v5s="],
+
+    "@d-dev/bin-upload-darwin-x64": ["@d-dev/bin-upload-darwin-x64@0.3.0", "https://ms-feed-12.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@d-dev/bin-upload-darwin-x64/-/bin-upload-darwin-x64-0.3.0.tgz", { "os": "darwin", "cpu": "x64" }, "sha1-D/1jo6abPTQl93Q78bnhHe5XhXs="],
+
+    "@d-dev/bin-upload-linux-arm64": ["@d-dev/bin-upload-linux-arm64@0.3.0", "https://ms-feed-25.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@d-dev/bin-upload-linux-arm64/-/bin-upload-linux-arm64-0.3.0.tgz", { "os": "linux", "cpu": "arm64" }, "sha1-CcZPgH48IrHsrvlhuoH3obRKc5U="],
+
+    "@d-dev/bin-upload-linux-x64": ["@d-dev/bin-upload-linux-x64@0.3.0", "https://ms-feed-2.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@d-dev/bin-upload-linux-x64/-/bin-upload-linux-x64-0.3.0.tgz", { "os": "linux", "cpu": "x64" }, "sha1-EsJBArjAuUJG9CoyrKmyYE8d8yc="],
+
+    "@d-dev/bin-upload-win-arm64": ["@d-dev/bin-upload-win-arm64@0.3.0", "https://ms-feed-25.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@d-dev/bin-upload-win-arm64/-/bin-upload-win-arm64-0.3.0.tgz", { "os": "win32", "cpu": "arm64" }, "sha1-KH8WaxYk2lpgIaaL07Nf8Q7TZJs="],
+
+    "@d-dev/bin-upload-win-x64": ["@d-dev/bin-upload-win-x64@0.3.0", "https://ms-feed-2.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@d-dev/bin-upload-win-x64/-/bin-upload-win-x64-0.3.0.tgz", { "os": "win32", "cpu": "x64" }, "sha1-mPz0fMOSB+1VVrtWH7zuLaSNuJw="],
+
+    "@d-dev/changelog": ["@d-dev/changelog@1.1.1", "https://ms-feed-25.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@d-dev/changelog/-/changelog-1.1.1.tgz", { "optionalDependencies": { "@d-dev/changelog-darwin-arm64": "1.1.1", "@d-dev/changelog-darwin-x64": "1.1.1", "@d-dev/changelog-linux-arm64": "1.1.1", "@d-dev/changelog-linux-x64": "1.1.1", "@d-dev/changelog-win-arm64": "1.1.1", "@d-dev/changelog-win-x64": "1.1.1" }, "bin": { "changelog": "index.js" } }, "sha1-pzxlViGB7zXiig0TMQyUH2dDxAo="],
+
+    "@d-dev/changelog-darwin-arm64": ["@d-dev/changelog-darwin-arm64@1.1.1", "https://ms-feed-2.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@d-dev/changelog-darwin-arm64/-/changelog-darwin-arm64-1.1.1.tgz", { "os": "darwin", "cpu": "arm64" }, "sha1-D4hqvfX91Sb69CM6eVE4Ln2J7Ws="],
+
+    "@d-dev/changelog-darwin-x64": ["@d-dev/changelog-darwin-x64@1.1.1", "https://ms-feed-25.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@d-dev/changelog-darwin-x64/-/changelog-darwin-x64-1.1.1.tgz", { "os": "darwin", "cpu": "x64" }, "sha1-nq8zsx3rAvC6Xc2gAzzHI2XY0Qo="],
+
+    "@d-dev/changelog-linux-arm64": ["@d-dev/changelog-linux-arm64@1.1.1", "https://ms-feed-25.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@d-dev/changelog-linux-arm64/-/changelog-linux-arm64-1.1.1.tgz", { "os": "linux", "cpu": "arm64" }, "sha1-IR1RkWMvtWTtA0wlIakqq0xRiFU="],
+
+    "@d-dev/changelog-linux-x64": ["@d-dev/changelog-linux-x64@1.1.1", "https://ms-feed-12.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@d-dev/changelog-linux-x64/-/changelog-linux-x64-1.1.1.tgz", { "os": "linux", "cpu": "x64" }, "sha1-PP/Fg5KnYuDx8L8e0+WSl+XZ+EE="],
+
+    "@d-dev/changelog-win-arm64": ["@d-dev/changelog-win-arm64@1.1.1", "https://ms-feed-12.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@d-dev/changelog-win-arm64/-/changelog-win-arm64-1.1.1.tgz", { "os": "win32", "cpu": "arm64" }, "sha1-kwpe9pQTBGSDrGvqJwA79FXYZPw="],
+
+    "@d-dev/changelog-win-x64": ["@d-dev/changelog-win-x64@1.1.1", "https://ms-feed-12.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@d-dev/changelog-win-x64/-/changelog-win-x64-1.1.1.tgz", { "os": "win32", "cpu": "x64" }, "sha1-JtYumTsHlZrXCMMz9ZV0J6kwAkE="],
+
+    "@d-dev/roar": ["@d-dev/roar@0.0.4", "https://ms-feed-25.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@d-dev/roar/-/roar-0.0.4.tgz", { "dependencies": { "meow": "^14.1.0" } }, "sha1-5ANHdxRs1G/4qxCtPxLBjZnYlBA="],
+
+    "@inquirer/ansi": ["@inquirer/ansi@2.0.7", "https://ms-feed-2.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@inquirer/ansi/-/ansi-2.0.7.tgz", {}, "sha1-ht4igQysPtQG7BD41mAWgVuCJrQ="],
+
+    "@inquirer/checkbox": ["@inquirer/checkbox@5.2.1", "https://ms-feed-25.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@inquirer/checkbox/-/checkbox-5.2.1.tgz", { "dependencies": { "@inquirer/ansi": "^2.0.7", "@inquirer/core": "^11.2.1", "@inquirer/figures": "^2.0.7", "@inquirer/type": "^4.0.7" }, "peerDependencies": { "@types/node": ">=18" }, "optionalPeers": ["@types/node"] }, "sha1-fxSLMVOnds7iAgFbEPmphQaNGI0="],
+
+    "@inquirer/confirm": ["@inquirer/confirm@6.1.1", "https://ms-feed-2.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@inquirer/confirm/-/confirm-6.1.1.tgz", { "dependencies": { "@inquirer/core": "^11.2.1", "@inquirer/type": "^4.0.7" }, "peerDependencies": { "@types/node": ">=18" }, "optionalPeers": ["@types/node"] }, "sha1-nGp9ecYTKyr1f9t1dH8FYgTlU1Y="],
+
+    "@inquirer/core": ["@inquirer/core@11.2.1", "https://ms-feed-2.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@inquirer/core/-/core-11.2.1.tgz", { "dependencies": { "@inquirer/ansi": "^2.0.7", "@inquirer/figures": "^2.0.7", "@inquirer/type": "^4.0.7", "cli-width": "^4.1.0", "fast-wrap-ansi": "^0.2.0", "mute-stream": "^3.0.0", "signal-exit": "^4.1.0" }, "peerDependencies": { "@types/node": ">=18" }, "optionalPeers": ["@types/node"] }, "sha1-VMzY99R4UhQLYGbL131jssKxaP0="],
+
+    "@inquirer/editor": ["@inquirer/editor@5.2.2", "https://ms-feed-25.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@inquirer/editor/-/editor-5.2.2.tgz", { "dependencies": { "@inquirer/core": "^11.2.1", "@inquirer/external-editor": "^3.0.3", "@inquirer/type": "^4.0.7" }, "peerDependencies": { "@types/node": ">=18" }, "optionalPeers": ["@types/node"] }, "sha1-fHPi/A571MQM/TihgK5bvSTTK5A="],
+
+    "@inquirer/expand": ["@inquirer/expand@5.1.1", "https://ms-feed-25.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@inquirer/expand/-/expand-5.1.1.tgz", { "dependencies": { "@inquirer/core": "^11.2.1", "@inquirer/type": "^4.0.7" }, "peerDependencies": { "@types/node": ">=18" }, "optionalPeers": ["@types/node"] }, "sha1-4q/qwkfZfdZO4YqoHpAr3R/g6nA="],
+
+    "@inquirer/external-editor": ["@inquirer/external-editor@3.0.3", "https://ms-feed-12.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@inquirer/external-editor/-/external-editor-3.0.3.tgz", { "dependencies": { "chardet": "^2.1.1", "iconv-lite": "^0.7.2" }, "peerDependencies": { "@types/node": ">=18" }, "optionalPeers": ["@types/node"] }, "sha1-1553JULPjTQGQunavToep/WjAQQ="],
+
+    "@inquirer/figures": ["@inquirer/figures@2.0.7", "https://ms-feed-12.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@inquirer/figures/-/figures-2.0.7.tgz", {}, "sha1-9cxYQ3MqgTBNBqDbS1PMfb2hVUE="],
+
+    "@inquirer/input": ["@inquirer/input@5.1.2", "https://ms-feed-12.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@inquirer/input/-/input-5.1.2.tgz", { "dependencies": { "@inquirer/core": "^11.2.1", "@inquirer/type": "^4.0.7" }, "peerDependencies": { "@types/node": ">=18" }, "optionalPeers": ["@types/node"] }, "sha1-kwXLFw38OlMj5erIhalF583dXEs="],
+
+    "@inquirer/number": ["@inquirer/number@4.1.1", "https://ms-feed-12.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@inquirer/number/-/number-4.1.1.tgz", { "dependencies": { "@inquirer/core": "^11.2.1", "@inquirer/type": "^4.0.7" }, "peerDependencies": { "@types/node": ">=18" }, "optionalPeers": ["@types/node"] }, "sha1-sTNmjY4OCZtBM6u5FSIVAeD/ddc="],
+
+    "@inquirer/password": ["@inquirer/password@5.1.1", "https://ms-feed-12.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@inquirer/password/-/password-5.1.1.tgz", { "dependencies": { "@inquirer/ansi": "^2.0.7", "@inquirer/core": "^11.2.1", "@inquirer/type": "^4.0.7" }, "peerDependencies": { "@types/node": ">=18" }, "optionalPeers": ["@types/node"] }, "sha1-8h77YU2pyQUJUmL1F4H9KnIfzqw="],
+
+    "@inquirer/prompts": ["@inquirer/prompts@8.5.2", "https://ms-feed-25.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@inquirer/prompts/-/prompts-8.5.2.tgz", { "dependencies": { "@inquirer/checkbox": "^5.2.1", "@inquirer/confirm": "^6.1.1", "@inquirer/editor": "^5.2.2", "@inquirer/expand": "^5.1.1", "@inquirer/input": "^5.1.2", "@inquirer/number": "^4.1.1", "@inquirer/password": "^5.1.1", "@inquirer/rawlist": "^5.3.1", "@inquirer/search": "^4.2.1", "@inquirer/select": "^5.2.1" }, "peerDependencies": { "@types/node": ">=18" }, "optionalPeers": ["@types/node"] }, "sha1-CcATKtoru6lMkdNBEV4eQcs/FSU="],
+
+    "@inquirer/rawlist": ["@inquirer/rawlist@5.3.1", "https://ms-feed-25.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@inquirer/rawlist/-/rawlist-5.3.1.tgz", { "dependencies": { "@inquirer/core": "^11.2.1", "@inquirer/type": "^4.0.7" }, "peerDependencies": { "@types/node": ">=18" }, "optionalPeers": ["@types/node"] }, "sha1-Zva45qqC1HOZxDO4JiEo58Gk+c4="],
+
+    "@inquirer/search": ["@inquirer/search@4.2.1", "https://ms-feed-2.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@inquirer/search/-/search-4.2.1.tgz", { "dependencies": { "@inquirer/core": "^11.2.1", "@inquirer/figures": "^2.0.7", "@inquirer/type": "^4.0.7" }, "peerDependencies": { "@types/node": ">=18" }, "optionalPeers": ["@types/node"] }, "sha1-yPS3irP4Zv3wUD+sDNCMSmZhwR4="],
+
+    "@inquirer/select": ["@inquirer/select@5.2.1", "https://ms-feed-25.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@inquirer/select/-/select-5.2.1.tgz", { "dependencies": { "@inquirer/ansi": "^2.0.7", "@inquirer/core": "^11.2.1", "@inquirer/figures": "^2.0.7", "@inquirer/type": "^4.0.7" }, "peerDependencies": { "@types/node": ">=18" }, "optionalPeers": ["@types/node"] }, "sha1-OgXnbljZ4bsJXpEsPnCTqgTNRgQ="],
+
+    "@inquirer/type": ["@inquirer/type@4.0.7", "https://ms-feed-12.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@inquirer/type/-/type-4.0.7.tgz", { "peerDependencies": { "@types/node": ">=18" }, "optionalPeers": ["@types/node"] }, "sha1-nG8NhX/mrVSaOpMjQ7ZOdqyzSxA="],
+
+    "@types/bun": ["@types/bun@1.3.14", "https://ms-feed-25.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@types/bun/-/bun-1.3.14.tgz", { "dependencies": { "bun-types": "1.3.14" } }, "sha1-vYtECRmiWHrd4xGmF6kgTzS4qMI="],
+
+    "@types/node": ["@types/node@26.1.1", "https://ms-feed-12.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/@types/node/-/node-26.1.1.tgz", { "dependencies": { "undici-types": "~8.3.0" } }, "sha1-utdY1gHpfWz0V9IE7najX8570Rk="],
+
+    "bun-types": ["bun-types@1.3.14", "https://ms-feed-25.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/bun-types/-/bun-types-1.3.14.tgz", { "dependencies": { "@types/node": "*" } }, "sha1-qP4lOfxcWa5F8f3BjfyfjV6ruvQ="],
+
+    "chardet": ["chardet@2.2.0", "https://ms-feed-12.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/chardet/-/chardet-2.2.0.tgz", {}, "sha1-AF1mTyy9SWGIjS4sMsWmnlnY7sQ="],
+
+    "cli-width": ["cli-width@4.1.0", "https://ms-feed-12.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/cli-width/-/cli-width-4.1.0.tgz", {}, "sha1-QtqsQdPCVO84rYrAN2chMBc2kcU="],
+
+    "fast-string-truncated-width": ["fast-string-truncated-width@3.0.3", "https://ms-feed-2.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/fast-string-truncated-width/-/fast-string-truncated-width-3.0.3.tgz", {}, "sha1-I6/g2mfXUsoHJ1OPHmlndZcozkk="],
+
+    "fast-string-width": ["fast-string-width@3.0.2", "https://ms-feed-25.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/fast-string-width/-/fast-string-width-3.0.2.tgz", { "dependencies": { "fast-string-truncated-width": "^3.0.2" } }, "sha1-FturtJHOVYW17LZ1tlwWXXFojus="],
+
+    "fast-wrap-ansi": ["fast-wrap-ansi@0.2.2", "https://ms-feed-2.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/fast-wrap-ansi/-/fast-wrap-ansi-0.2.2.tgz", { "dependencies": { "fast-string-width": "^3.0.2" } }, "sha1-lelSoBRbzj9ZrVbhefhMSNQHKTU="],
+
+    "iconv-lite": ["iconv-lite@0.7.3", "https://ms-feed-2.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/iconv-lite/-/iconv-lite-0.7.3.tgz", { "dependencies": { "safer-buffer": ">= 2.1.2 < 3.0.0" } }, "sha1-hO4S+WPn3lC8AaE+FgoHizsPQV8="],
+
+    "meow": ["meow@14.1.0", "https://ms-feed-2.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/meow/-/meow-14.1.0.tgz", {}, "sha1-PNLRatU0gpqxL8tQEPwv24n6zTE="],
+
+    "mute-stream": ["mute-stream@3.0.0", "https://ms-feed-2.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/mute-stream/-/mute-stream-3.0.0.tgz", {}, "sha1-zYAU3SrLcuHpG7Z8dPABnmILotE="],
+
+    "safer-buffer": ["safer-buffer@2.1.2", "https://ms-feed-12.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/safer-buffer/-/safer-buffer-2.1.2.tgz", {}, "sha1-RPoWGwGHuVSd2Eu5GAL5vYOFzWo="],
+
+    "signal-exit": ["signal-exit@4.1.0", "https://ms-feed-2.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/signal-exit/-/signal-exit-4.1.0.tgz", {}, "sha1-lSGIwcvVRgcOLdIND0HArgUwywQ="],
+
+    "typescript": ["typescript@5.9.3", "https://ms-feed-2.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/typescript/-/typescript-5.9.3.tgz", { "bin": { "tsc": "./bin/tsc", "tsserver": "./bin/tsserver" } }, "sha1-W09Z4VMQqxeiFvXWz1PuR27eZw8="],
+
+    "undici-types": ["undici-types@8.3.0", "https://ms-feed-25.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/undici-types/-/undici-types-8.3.0.tgz", {}, "sha1-ROn8nzJEZIzeo15Pm7LWgelBCAk="],
+  }
+}

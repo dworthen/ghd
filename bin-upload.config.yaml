@@ -1,0 +1,29 @@
+binaries:
+  linux-arm64: "./bin/linux-arm64/ghd"
+  linux-arm64-musl: "./bin/linux-arm64-musl/ghd"
+  linux-x64: "./bin/linux-x64/ghd"
+  linux-x64-musl: "./bin/linux-x64-musl/ghd"
+  win-x64: "./bin/win-x64/ghd.exe"
+  win-arm64: "bin/win-arm64/ghd.exe"
+  darwin-arm64: "./bin/darwin-arm64/ghd"
+  darwin-x64: "./bin/darwin-x64/ghd"
+
+pack:
+  prePackCommand: "bun run build"
+  dir: "./.bin-upload"
+
+github:
+  owner: "dworthen"
+  repo: "ghd"
+  token: "<%= env.GITHUB_TOKEN %>"
+  release:
+    tag_name: "v<%= vars.gitTag %>"
+  archives:
+    linux-arm64: "tar.gz"
+    linux-arm64-musl: "tar.gz"
+    linux-x64: "tar.gz"
+    linux-x64-musl: "tar.gz"
+    win-x64: "zip"
+    win-arm64: "zip"
+    darwin-arm64: "tar.gz"
+    darwin-x64: "tar.gz"
