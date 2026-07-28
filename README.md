@@ -128,7 +128,7 @@ An index provides reusable include, exclude, and output-directory defaults. It i
 Metadata values must be primitives or arrays of primitives. Nested metadata
 objects are not supported.
 
-Configure and validate a global index:
+Configure a global index:
 
 ```sh
 ghd indexes add OWNER/INDEX_REPO/path/to/ghd.templates.yaml
@@ -169,7 +169,7 @@ ghd add <OWNER/REPO[/path][@COMMIT_SHA]>
 ghd install [local-config=ghd.config.yaml]
   --force, -f             Download entries whose target directories exist
 
-ghd indexes add <location>                 Validate and add an index
+ghd indexes add <index>                    Add an index
 ghd indexes list [--format json|yaml]      Print configured indexes
 ghd indexes remove <location>              Remove a configured index
 ghd indexes view                             Print configured index records

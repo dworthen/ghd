@@ -4,10 +4,11 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import {
   IndexNotFoundError,
+  type LoadRemoteIndexDependencies,
   loadRemoteIndex,
   parseIndexLocation,
 } from '../../index/index'
-import { type AddIndexDependencies, addIndex } from './add'
+import { addIndex } from './add'
 
 const temporaryDirectories: string[] = []
 const validIndex = `- repoDirectory: octo-org/project/packages/app
@@ -36,7 +37,7 @@ async function temporaryConfig(contents?: string): Promise<string> {
 
 function remoteDependencies(
   response: Response = new Response(validIndex),
-): AddIndexDependencies & {
+): LoadRemoteIndexDependencies & {
   repositories: string[]
   requests: Array<{ url: string; init?: RequestInit }>
 } {
@@ -187,16 +188,25 @@ describe('loadRemoteIndex', () => {
 })
 
 describe('addIndex', () => {
-  test('creates the config and stores a validated index', async () => {
+  test('creates the config and stores the entry without loading or validating an index', async () => {
     const configPath = await temporaryConfig()
+    const mustNotFetch: typeof globalThis.fetch = Object.assign(
+      async (_input: string | URL | Request, _init?: RequestInit) => {
+        throw new Error('must not fetch an index')
+      },
+      { preconnect: globalThis.fetch.preconnect },
+    )
 
-    await addIndex('owner/repo/index.yaml', {
-      ...remoteDependencies(),
+    await addIndex('not a remote index', {
       configPath,
+      getGithubToken: async () => {
+        throw new Error('must not get a token')
+      },
+      fetch: mustNotFetch,
     })
 
     expect(Bun.YAML.parse(await Bun.file(configPath).text())).toEqual({
-      indexes: ['owner/repo/index.yaml'],
+      indexes: ['not a remote index'],
     })
   })
 
@@ -205,10 +215,7 @@ describe('addIndex', () => {
       'indexes: [old/repo/index.yaml]\nother: preserved\n',
     )
 
-    await addIndex('new/repo/path/index.yaml', {
-      ...remoteDependencies(),
-      configPath,
-    })
+    await addIndex('new/repo/path/index.yaml', { configPath })
 
     expect(Bun.YAML.parse(await Bun.file(configPath).text())).toEqual({
       indexes: ['old/repo/index.yaml', 'new/repo/path/index.yaml'],
@@ -216,28 +223,11 @@ describe('addIndex', () => {
     })
   })
 
-  test('does not add a duplicate index', async () => {
+  test('does not add or save a duplicate entry', async () => {
     const original = 'indexes: [owner/repo/index.yaml]\nother: preserved\n'
     const configPath = await temporaryConfig(original)
 
-    await addIndex('owner/repo/index.yaml', {
-      ...remoteDependencies(),
-      configPath,
-    })
-
-    expect(await Bun.file(configPath).text()).toBe(original)
-  })
-
-  test('does not modify config when remote validation fails', async () => {
-    const original = 'indexes: [old/repo/index.yaml]\n'
-    const configPath = await temporaryConfig(original)
-
-    await expect(
-      addIndex('new/repo/index.yaml', {
-        ...remoteDependencies(new Response('missing', { status: 404 })),
-        configPath,
-      }),
-    ).rejects.toThrow('Failed to get index')
+    await addIndex('owner/repo/index.yaml', { configPath })
 
     expect(await Bun.file(configPath).text()).toBe(original)
   })
@@ -246,10 +236,7 @@ describe('addIndex', () => {
     const configPath = await temporaryConfig('- list item\n')
 
     await expect(
-      addIndex('owner/repo/index.yaml', {
-        ...remoteDependencies(),
-        configPath,
-      }),
+      addIndex('owner/repo/index.yaml', { configPath }),
     ).rejects.toThrow(
       `Configuration file at ${configPath} is not a YAML mapping.`,
     )
