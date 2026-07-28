@@ -166,7 +166,7 @@ export async function loadIndexes<T = IndexRecord>(
     if (!(await Bun.file(configPath).exists())) {
       throw new Error(`Configuration file not found at ${configPath}.`)
     }
-    configured = (await new UserConfig(configPath).load()).indexes
+    configured = (await new UserConfig(configPath).read()).indexes
   }
   const selectedNames = names ?? Object.keys(configured)
   const loadIndex =

@@ -23,6 +23,6 @@ export async function readIndex(
   if (!(await Bun.file(configPath).exists())) {
     throw new Error(`Configuration file not found at ${configPath}.`)
   }
-  const config = await new UserConfig(configPath).load()
+  const config = await new UserConfig(configPath).read()
   return configuredIndex(config, name, configPath)
 }

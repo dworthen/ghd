@@ -35,7 +35,7 @@ export async function setIndex(
 
   const configPath = dependencies.configPath ?? UserConfigPath
   const file = new UserConfig(configPath)
-  const config = await file.load()
+  const config = await file.read()
   config.indexes[name] = index
   await file.save()
 }

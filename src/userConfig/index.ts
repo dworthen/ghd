@@ -2,12 +2,16 @@ import { mkdir } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import {
+  type DataReader,
+  type DataValidator,
+  type DataWriter,
+} from '../DataManager'
+import {
   FileAlreadyExistsError,
   FileNotLoadedError,
   InvalidFileExtensionError,
   ValidationError,
 } from '../errors'
-import { type FileManager } from '../FileManager'
 import { isPlainRecord, isStringRecord } from '../utils/parsing'
 
 export const UserConfigDirectory =
@@ -24,7 +28,9 @@ export function isUserConfigDocument(
   return isPlainRecord(value) && isStringRecord(value.indexes)
 }
 
-export class UserConfig implements FileManager<UserConfigDocument> {
+export class UserConfig
+  implements DataReader<UserConfigDocument>, DataWriter, DataValidator
+{
   #configPath: string
   #config: UserConfigDocument | null = null
 
@@ -40,7 +46,7 @@ export class UserConfig implements FileManager<UserConfigDocument> {
     }
   }
 
-  async load(): Promise<UserConfigDocument> {
+  async read(): Promise<UserConfigDocument> {
     if (this.#config !== null) return this.#config
 
     const file = Bun.file(this.#configPath)

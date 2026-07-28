@@ -108,13 +108,13 @@ describe('UserConfig document validation', () => {
   })
 })
 
-describe('UserConfig load', () => {
+describe('UserConfig read', () => {
   test.each([undefined, '', '  \n'])(
     'returns the default document for missing or empty contents %p',
     async (contents) => {
       const path = await temporaryConfigPath()
       if (contents !== undefined) await Bun.write(path, contents)
-      expect(await new UserConfig(path).load()).toEqual({ indexes: {} })
+      expect(await new UserConfig(path).read()).toEqual({ indexes: {} })
     },
   )
 
@@ -125,9 +125,9 @@ describe('UserConfig load', () => {
       "indexes:\n  main: owner/repo/index.yaml\n  spaced: '  value  '\nother: preserved\n",
     )
     const file = new UserConfig(path)
-    const first = await file.load()
+    const first = await file.read()
     await Bun.write(path, 'indexes:\n  changed: changed/repo/index.yaml\n')
-    const second = await file.load()
+    const second = await file.read()
 
     expect(second).toBe(first)
     expect(second as unknown).toEqual({
@@ -144,7 +144,7 @@ describe('UserConfig load', () => {
     async (contents) => {
       const path = await temporaryConfigPath()
       await Bun.write(path, contents)
-      await expect(new UserConfig(path).load()).rejects.toBeInstanceOf(
+      await expect(new UserConfig(path).read()).rejects.toBeInstanceOf(
         ValidationError,
       )
     },
@@ -153,10 +153,10 @@ describe('UserConfig load', () => {
   test('wraps malformed YAML in ValidationError', async () => {
     const path = await temporaryConfigPath()
     await Bun.write(path, 'indexes: [unterminated')
-    await expect(new UserConfig(path).load()).rejects.toBeInstanceOf(
+    await expect(new UserConfig(path).read()).rejects.toBeInstanceOf(
       ValidationError,
     )
-    await expect(new UserConfig(path).load()).rejects.toThrow(
+    await expect(new UserConfig(path).read()).rejects.toThrow(
       `User configuration at ${resolve(path)} is not valid YAML`,
     )
   })
@@ -166,7 +166,7 @@ describe('UserConfig save', () => {
   test('creates parent directories and serializes loaded config as YAML', async () => {
     const path = await temporaryConfigPath('.yml')
     const file = new UserConfig(path)
-    const config = await file.load()
+    const config = await file.read()
     config.indexes.main = 'owner/repo/index.yaml'
     await file.save()
 

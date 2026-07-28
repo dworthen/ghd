@@ -29,7 +29,7 @@ export async function listIndexes(
   if (!(await Bun.file(configPath).exists())) {
     throw new Error(`Configuration file not found at ${configPath}.`)
   }
-  const config = await new UserConfig(configPath).load()
+  const config = await new UserConfig(configPath).read()
   return format === 'yaml'
     ? Bun.YAML.stringify(config.indexes, null, 2)
     : JSON.stringify(config.indexes, null, 2)
