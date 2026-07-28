@@ -1,4 +1,4 @@
-export interface DataReader<T extends JsonValue> {
+export interface DataReader<T> {
   read(): Promise<T> | T
 }
 

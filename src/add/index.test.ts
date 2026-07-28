@@ -2,6 +2,7 @@ import { afterEach, describe, expect, test } from 'bun:test'
 import { link, lstat, mkdir, mkdtemp, rm, symlink } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { IndexNotFoundError } from '../errors'
 import {
   add,
   type LocalConfig,
@@ -404,17 +405,16 @@ describe('add', () => {
         globalConfigPath,
         loadRemoteIndex: async (location) => {
           loadedIndexes.push(location)
-          return {
-            repos: {
-              'owner/repo': {
-                metadata: { type: 'tools' },
-                description: 'Tooling files',
-                include: ['**/*.ts', '*.ts'],
-                exclude: ['secret.ts'],
-                outputDirectory: 'generated/tools',
-              },
+          return [
+            {
+              repoDirectory: 'owner/repo',
+              metadata: { type: 'tools' },
+              description: 'Tooling files',
+              include: ['**/*.ts', '*.ts'],
+              exclude: ['secret.ts'],
+              outputDirectory: 'generated/tools',
             },
-          }
+          ]
         },
       },
     )
@@ -436,14 +436,13 @@ describe('add', () => {
     const fetch = async (input: string | URL | Request) => {
       const url = String(input)
       if (url.includes('/repos/index-owner/repo/contents/index.yaml')) {
-        return new Response(`repos:
-  owner/repo:
-    metadata:
-      type: tools
-    description: Tooling files
-    include: ['*.ts']
-    exclude: ['skip.ts']
-    outputDirectory: generated/tools
+        return new Response(`- repoDirectory: owner/repo
+  metadata:
+    type: tools
+  description: Tooling files
+  include: ['*.ts']
+  exclude: ['skip.ts']
+  outputDirectory: generated/tools
 `)
       }
       if (url === 'https://api.github.com/repos/owner/repo') {
@@ -517,6 +516,71 @@ describe('add', () => {
     })
   })
 
+  test('discards matching records when a later index fails before fallback', async () => {
+    const cwd = await temporaryDirectory()
+    const globalConfigPath = join(cwd, 'global.yaml')
+    await Bun.write(
+      globalConfigPath,
+      'indexes: [index-owner/one/index.yaml, index-owner/two/index.yaml]\n',
+    )
+    const sha = '1234567890abcdef1234567890abcdef12345678'
+    const fetch = async (input: string | URL | Request) => {
+      const url = String(input)
+      if (url === 'https://api.github.com/repos/owner/repo') {
+        return Response.json({ default_branch: 'main' })
+      }
+      if (url.endsWith('/commits/main')) return Response.json({ sha })
+      if (url.includes('/git/trees/')) {
+        return Response.json({
+          tree: [
+            { type: 'blob', path: 'keep.ts' },
+            { type: 'blob', path: 'blocked.ts' },
+          ],
+        })
+      }
+      if (url.includes('/contents/keep.ts')) return new Response('keep')
+      if (url.includes('/contents/blocked.ts')) return new Response('blocked')
+      throw new Error(`Unexpected URL: ${url}`)
+    }
+    const loaded: string[] = []
+
+    const result = await add(
+      'owner/repo',
+      'dist',
+      { cwd, include: ['*.ts'] },
+      {
+        fetch: fetch as typeof globalThis.fetch,
+        getGithubToken: async () => 'token',
+        globalConfigPath,
+        loadRemoteIndex: async (location) => {
+          loaded.push(location)
+          if (location.includes('/two/')) {
+            throw new IndexNotFoundError('second index missing')
+          }
+          return [
+            {
+              repoDirectory: 'owner/repo',
+              description: 'first index record',
+              include: ['*.ts'],
+              exclude: ['blocked.ts'],
+              outputDirectory: 'ignored',
+            },
+          ]
+        },
+      },
+    )
+
+    expect(loaded).toEqual([
+      'index-owner/one/index.yaml',
+      'index-owner/two/index.yaml',
+    ])
+    expect(result.status === 'downloaded' && result.files).toEqual([
+      'keep.ts',
+      'blocked.ts',
+    ])
+    expect(await Bun.file(join(cwd, 'dist/blocked.ts')).text()).toBe('blocked')
+  })
+
   test('continues with an explicit include when the configured index repository is missing', async () => {
     const cwd = await temporaryDirectory()
     const globalConfigPath = join(cwd, 'global.yaml')
@@ -586,17 +650,16 @@ describe('add', () => {
         fetch: fetch as typeof globalThis.fetch,
         getGithubToken: async () => 'token',
         globalConfigPath,
-        loadRemoteIndex: async () => ({
-          repos: {
-            'owner/repo': {
-              metadata: { type: 'tools' },
-              description: 'Tooling files',
-              include: ['*.ts'],
-              exclude: [],
-              outputDirectory: 'generated/tools',
-            },
+        loadRemoteIndex: async () => [
+          {
+            repoDirectory: 'owner/repo',
+            metadata: { type: 'tools' },
+            description: 'Tooling files',
+            include: ['*.ts'],
+            exclude: [],
+            outputDirectory: 'generated/tools',
           },
-        }),
+        ],
       },
     )
 

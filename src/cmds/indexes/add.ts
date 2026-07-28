@@ -1,8 +1,11 @@
 import { createCommand } from '@d-dev/roar'
+import { type DataReader } from '../../DataManager'
 import {
+  DefaultIndexManager,
+  type Index,
   type LoadRemoteIndexDependencies,
   loadRemoteIndex,
-} from '../../indexes'
+} from '../../index/index'
 import { UserConfig, UserConfigPath } from '../../userConfig'
 
 export interface AddIndexDependencies extends LoadRemoteIndexDependencies {
@@ -33,7 +36,22 @@ export async function addIndex(
   index: string,
   dependencies: AddIndexDependencies = {},
 ): Promise<void> {
-  await loadRemoteIndex(index, dependencies)
+  const loadIndex = loadRemoteIndex
+  class ConfiguredIndexReader implements DataReader<Index> {
+    #index: string
+
+    constructor(indexSlug: string) {
+      this.#index = indexSlug
+    }
+
+    read(): Promise<Index> {
+      return loadIndex(this.#index, dependencies)
+    }
+  }
+  const manager = new DefaultIndexManager([index], ConfiguredIndexReader)
+  for await (const _record of manager.records()) {
+    // Iteration validates the complete index before it is configured.
+  }
 
   const configPath = dependencies.configPath ?? UserConfigPath
   const file = new UserConfig(configPath)

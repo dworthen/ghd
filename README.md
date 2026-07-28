@@ -109,21 +109,20 @@ An index provides reusable include, exclude, and output-directory defaults. It i
 
 ```yaml
 # OWNER/INDEX_REPO/path/to/ghd.templates.yaml
-repos:
-  OWNER/REPO/path/to/templates:
-    metadata: # Optional - can include any additional data
-      type: templates
-      languages:
-        - typescript
-        - json
-      stable: true
-    description: Shared TypeScript and JSON templates
-    include:
-      - "**/*.ts"
-      - "**/*.json"
-    exclude:
-      - "**/*.test.ts"
-    outputDirectory: generated/templates
+- repoDirectory: OWNER/REPO/path/to/templates
+  metadata: # Optional - can include any additional data
+    type: templates
+    languages:
+      - typescript
+      - json
+    stable: true
+  description: Shared TypeScript and JSON templates
+  include:
+    - "**/*.ts"
+    - "**/*.json"
+  exclude:
+    - "**/*.test.ts"
+  outputDirectory: generated/templates
 ```
 
 Metadata values must be primitives or arrays of primitives. Nested metadata
@@ -147,13 +146,12 @@ Without specifying include, exclude or output directory. Default values can be o
 ghd add OWNER/REPO/path/to/templates -o generated/my-templates
 ```
 
-Manage and view the configured indexes with:
+Manage the configured indexes and view their records with:
 
 ```sh
 ghd indexes list
 ghd indexes list --format yaml
 ghd indexes view
-ghd indexes view OWNER/INDEX_REPO/path/to/ghd.templates.yaml
 ghd indexes remove OWNER/INDEX_REPO/path/to/ghd.templates.yaml
 ```
 
@@ -174,7 +172,7 @@ ghd install [local-config=ghd.config.yaml]
 ghd indexes add <location>                 Validate and add an index
 ghd indexes list [--format json|yaml]      Print configured indexes
 ghd indexes remove <location>              Remove a configured index
-ghd indexes view [indexes...] [--format json|yaml]
+ghd indexes view                             Print configured index records
 
 ghd upgrade [--tag <tag>] [--check]
 ghd --version

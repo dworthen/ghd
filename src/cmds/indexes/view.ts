@@ -1,50 +1,53 @@
 import { createCommand } from '@d-dev/roar'
 import {
-  type Index,
-  type LoadIndexesDependencies,
-  loadIndexes,
-} from '../../indexes'
+  DefaultIndexManager,
+  type IndexManager,
+  type IndexRecord,
+} from '../../index/index'
+import { UserConfig, UserConfigPath } from '../../userConfig'
 
-export type ViewFormat = 'json' | 'yaml'
-export type ViewIndexDependencies = LoadIndexesDependencies<
-  Index['repos'][string]
->
+export interface ViewIndexesDependencies {
+  configPath?: string
+  manager?: new (indexes: string[]) => IndexManager
+  log?: (...values: unknown[]) => void
+}
 
 export const viewIndexCmd = createCommand(
   {
-    usageName: 'ghd indexes view [indexes...]',
-    description: 'Download, merge, and print configured indexes',
-    flags: {
-      format: {
-        type: 'string',
-        shortFlag: 'f',
-        choices: ['json', 'yaml'],
-        default: 'json',
-        description: 'Output format',
-      },
-    },
+    usageName: 'ghd indexes view',
+    description: 'Print records from configured indexes',
   },
   async (args) => {
-    console.log(
-      await viewIndexes(
-        args.input.length === 0 ? undefined : args.input,
-        args.flags.format as ViewFormat,
-      ),
-    )
+    if (args.input.length !== 0) {
+      throw new Error(
+        'The indexes view command does not accept positional arguments.',
+      )
+    }
+    await viewIndexes()
   },
 )
 
 export async function viewIndexes(
-  indexes: string[] | undefined,
-  format: ViewFormat = 'json',
-  dependencies: ViewIndexDependencies = {},
-): Promise<string> {
-  const loaded = await loadIndexes(indexes, dependencies)
-  return stringifyIndex(loaded, format)
+  dependencies: ViewIndexesDependencies = {},
+): Promise<void> {
+  const config = await new UserConfig(
+    dependencies.configPath ?? UserConfigPath,
+  ).read()
+  const Manager = dependencies.manager ?? DefaultIndexManager
+  const manager = new Manager(config.indexes)
+  const log = dependencies.log ?? console.log
+
+  for await (const record of manager.records()) printRecord(record, log)
 }
 
-export function stringifyIndex(index: Index, format: ViewFormat): string {
-  return format === 'yaml'
-    ? Bun.YAML.stringify(index, null, 2)
-    : JSON.stringify(index, null, 2)
+export function printRecord(
+  record: IndexRecord,
+  log: (...values: unknown[]) => void = console.log,
+): void {
+  const metadata = record.metadata
+  if (metadata === undefined || !Object.hasOwn(metadata, 'type')) {
+    log(record.repoDirectory, record.description)
+    return
+  }
+  log(record.repoDirectory, metadata.type, record.description)
 }

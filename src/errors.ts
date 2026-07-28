@@ -13,3 +13,11 @@ export class FileAlreadyExistsError extends Error {
 export class FileNotLoadedError extends Error {
   override name = 'FileNotLoadedError'
 }
+
+export class IndexNotFoundError extends Error {
+  override name = 'IndexNotFoundError'
+}
+
+export class GithubRequestError extends Error {
+  override name = 'GithubRequestError'
+}

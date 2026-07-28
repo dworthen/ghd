@@ -6,21 +6,20 @@ import {
   IndexNotFoundError,
   loadRemoteIndex,
   parseIndexLocation,
-} from '../../indexes'
+} from '../../index/index'
 import { type AddIndexDependencies, addIndex } from './add'
 
 const temporaryDirectories: string[] = []
-const validIndex = `repos:
-  octo-org/project/packages/app:
-    metadata:
-      type: app
-      stable: true
-    description: Application package
-    include:
-      - '**/*.ts'
-    exclude:
-      - '**/*.test.ts'
-    outputDirectory: packages/app
+const validIndex = `- repoDirectory: octo-org/project/packages/app
+  metadata:
+    type: app
+    stable: true
+  description: Application package
+  include:
+    - '**/*.ts'
+  exclude:
+    - '**/*.test.ts'
+  outputDirectory: packages/app
 `
 
 async function temporaryConfig(contents?: string): Promise<string> {
@@ -100,17 +99,16 @@ describe('loadRemoteIndex', () => {
       dependencies,
     )
 
-    expect(index).toEqual({
-      repos: {
-        'octo-org/project/packages/app': {
-          metadata: { type: 'app', stable: true },
-          description: 'Application package',
-          include: ['**/*.ts'],
-          exclude: ['**/*.test.ts'],
-          outputDirectory: 'packages/app',
-        },
+    expect(index).toEqual([
+      {
+        repoDirectory: 'octo-org/project/packages/app',
+        metadata: { type: 'app', stable: true },
+        description: 'Application package',
+        include: ['**/*.ts'],
+        exclude: ['**/*.test.ts'],
+        outputDirectory: 'packages/app',
       },
-    })
+    ])
     expect(dependencies.repositories).toEqual(['octo-org/indexes'])
     expect(dependencies.requests).toEqual([
       {
@@ -156,9 +154,7 @@ describe('loadRemoteIndex', () => {
   })
 
   test('rejects invalid YAML', async () => {
-    const dependencies = remoteDependencies(
-      new Response('repos: [unterminated'),
-    )
+    const dependencies = remoteDependencies(new Response('- [unterminated'))
 
     await expect(
       loadRemoteIndex('owner/repo/index.yaml', dependencies),
@@ -166,15 +162,15 @@ describe('loadRemoteIndex', () => {
   })
 
   test.each([
-    ['a non-mapping', 'value'],
-    ['missing repos', '{}'],
+    ['a non-list', 'value'],
+    ['a mapping', '{}'],
     [
       'missing required fields',
-      'repos:\n  owner/repo:\n    metadata: {}\n    description: Tools\n    include: []\n    exclude: []\n',
+      '- repoDirectory: owner/repo\n  metadata: {}\n  description: Tools\n  include: []\n  exclude: []\n',
     ],
     [
       'non-string patterns',
-      'repos:\n  owner/repo/src:\n    metadata: {}\n    description: Tools\n    include: [1]\n    exclude: []\n    outputDirectory: src\n',
+      '- repoDirectory: owner/repo/src\n  metadata: {}\n  description: Tools\n  include: [1]\n  exclude: []\n  outputDirectory: src\n',
     ],
   ])(
     'rejects %s instead of returning a value that is not an Index',

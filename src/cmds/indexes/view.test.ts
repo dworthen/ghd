@@ -2,8 +2,8 @@ import { afterEach, describe, expect, test } from 'bun:test'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { type Index } from '../../indexes'
-import { stringifyIndex, viewIndexes } from './view'
+import { type IndexRecord } from '../../index/index'
+import { printRecord, viewIndexes } from './view'
 
 const temporaryDirectories: string[] = []
 
@@ -23,7 +23,13 @@ afterEach(async () => {
   )
 })
 
-const record = (description: string): Index['repos'][string] => ({
+const record = (
+  repoDirectory: string,
+  description: string,
+  metadata?: IndexRecord['metadata'],
+): IndexRecord => ({
+  repoDirectory,
+  metadata,
   description,
   include: [],
   exclude: [],
@@ -31,81 +37,80 @@ const record = (description: string): Index['repos'][string] => ({
 })
 
 describe('viewIndexes', () => {
-  test('loads all configured indexes and merges them in configuration order', async () => {
+  test('loads configured indexes through a manager and prints each record in order', async () => {
     const configPath = await temporaryConfig(
       'indexes: [owner/one/index.yaml, owner/two/index.yaml]\n',
     )
-    const loaded: string[] = []
-    const output = await viewIndexes(undefined, 'json', {
+    const receivedIndexes: string[][] = []
+    class Manager {
+      constructor(indexes: string[]) {
+        receivedIndexes.push(indexes)
+      }
+
+      async *records(): AsyncIterableIterator<IndexRecord> {
+        yield record('owner/one', ' first ', { type: 'tools' })
+        yield record('owner/two/path', 'second')
+      }
+    }
+    const calls: unknown[][] = []
+
+    const result = await viewIndexes({
       configPath,
-      loadIndex: async (location) => {
-        loaded.push(location)
-        const repos: Index['repos'] = location.includes('/one/')
-          ? { 'owner/one': record('first') }
-          : { 'owner/two': record('second') }
-        return { repos }
-      },
+      manager: Manager,
+      log: (...values) => calls.push(values),
     })
 
-    expect(loaded).toEqual(['owner/one/index.yaml', 'owner/two/index.yaml'])
-    expect(JSON.parse(output)).toEqual({
-      repos: {
-        'owner/one': record('first'),
-        'owner/two': record('second'),
-      },
-    })
+    expect(result).toBeUndefined()
+    expect(receivedIndexes).toEqual([
+      ['owner/one/index.yaml', 'owner/two/index.yaml'],
+    ])
+    expect(calls).toEqual([
+      ['owner/one', 'tools', ' first '],
+      ['owner/two/path', 'second'],
+    ])
   })
 
-  test('loads explicit indexes in caller order and later indexes win conflicts', async () => {
-    const loaded: string[] = []
-    const indexes = ['owner/three/index.yaml', 'owner/one/index.yaml']
-    const output = await viewIndexes(indexes, 'yaml', {
-      loadIndex: async (location) => {
-        loaded.push(location)
-        return { repos: { 'owner/shared': record(location) } }
-      },
-    })
-
-    expect(loaded).toEqual(indexes)
-    expect(Bun.YAML.parse(output)).toEqual({
-      repos: { 'owner/shared': record('owner/one/index.yaml') },
-    })
-  })
-
-  test('preserves explicit duplicate indexes rather than deduplicating them', async () => {
-    const loaded: string[] = []
-    await viewIndexes(
-      ['owner/one/index.yaml', 'owner/one/index.yaml'],
-      'json',
-      {
-        loadIndex: async (location) => {
-          loaded.push(location)
-          return { repos: {} }
-        },
-      },
-    )
-    expect(loaded).toEqual(['owner/one/index.yaml', 'owner/one/index.yaml'])
-  })
-
-  test('accepts an empty configured list', async () => {
+  test('accepts an empty configured list without printing records', async () => {
     const configPath = await temporaryConfig('indexes: []\n')
-    await expect(
-      viewIndexes(undefined, 'json', {
-        configPath,
-        loadIndex: async () => {
-          throw new Error('must not load')
-        },
-      }),
-    ).resolves.toBe('{\n  "repos": {}\n}')
+    const calls: unknown[][] = []
+    class Manager {
+      constructor(indexes: string[]) {
+        expect(indexes).toEqual([])
+      }
+
+      async *records(): AsyncIterableIterator<IndexRecord> {}
+    }
+
+    await viewIndexes({
+      configPath,
+      manager: Manager,
+      log: (...values) => calls.push(values),
+    })
+    expect(calls).toEqual([])
   })
 })
 
-describe('stringifyIndex', () => {
-  test('returns a string in the requested exact format', () => {
-    const index: Index = { repos: { 'owner/repo': record('main') } }
-    expect(stringifyIndex(index, 'json')).toBe(JSON.stringify(index, null, 2))
-    expect(stringifyIndex(index, 'yaml')).toBe(
-      Bun.YAML.stringify(index, null, 2),
-    )
+describe('printRecord', () => {
+  test('prints repoDirectory, metadata.type when present, and description without normalizing', () => {
+    const calls: unknown[][] = []
+    const log = (...values: unknown[]) => calls.push(values)
+    const types: Primitive[] = [
+      0,
+      false,
+      null,
+      ' type ',
+      1n,
+      Symbol.for('type'),
+      undefined,
+    ]
+
+    for (const type of types)
+      printRecord(record('owner/repo', ' desc ', { type }), log)
+    printRecord(record('owner/repo', ' desc '), log)
+
+    expect(calls).toEqual([
+      ...types.map((type) => ['owner/repo', type, ' desc ']),
+      ['owner/repo', ' desc '],
+    ])
   })
 })
