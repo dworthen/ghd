@@ -5,7 +5,7 @@ export type ListFormat = 'json' | 'yaml'
 
 export const listIndexesCmd = createCommand(
   {
-    usageName: 'ghd indexes list',
+    usageName: 'ghd index list',
     description: 'Print configured indexes',
     flags: {
       format: {

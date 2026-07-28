@@ -8,12 +8,12 @@ export interface AddIndexDependencies extends LoadRemoteIndexDependencies {
 
 export const addIndexCmd = createCommand(
   {
-    usageName: 'ghd indexes add <index>',
+    usageName: 'ghd index add <index>',
     description: 'Add an index',
   },
   async (args) => {
     if (args.input.length !== 1) {
-      throw new Error('The indexes add command requires one index.')
+      throw new Error('The index add command requires one index.')
     }
 
     const index = args.input[0]

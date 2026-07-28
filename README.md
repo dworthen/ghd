@@ -131,7 +131,7 @@ objects are not supported.
 Configure a global index:
 
 ```sh
-ghd indexes add OWNER/INDEX_REPO/path/to/ghd.templates.yaml
+ghd index add OWNER/INDEX_REPO/path/to/ghd.templates.yaml
 ```
 
 Now you can run
@@ -149,10 +149,10 @@ ghd add OWNER/REPO/path/to/templates -o generated/my-templates
 Manage the configured indexes and view their records with:
 
 ```sh
-ghd indexes list
-ghd indexes list --format yaml
-ghd indexes view
-ghd indexes remove OWNER/INDEX_REPO/path/to/ghd.templates.yaml
+ghd index list
+ghd index list --format yaml
+ghd index view
+ghd index remove OWNER/INDEX_REPO/path/to/ghd.templates.yaml
 ```
 
 ## Command reference
@@ -169,10 +169,10 @@ ghd add <OWNER/REPO[/path][@COMMIT_SHA]>
 ghd install [local-config=ghd.config.yaml]
   --force, -f             Download entries whose target directories exist
 
-ghd indexes add <index>                    Add an index
-ghd indexes list [--format json|yaml]      Print configured indexes
-ghd indexes remove <location>              Remove a configured index
-ghd indexes view                             Print configured index records
+ghd index add <index>                    Add an index
+ghd index list [--format json|yaml]      Print configured indexes
+ghd index remove <location>              Remove a configured index
+ghd index view                           Print configured index records
 
 ghd upgrade [--tag <tag>] [--check]
 ghd --version

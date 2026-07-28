@@ -14,13 +14,13 @@ export interface ViewIndexesDependencies {
 
 export const viewIndexCmd = createCommand(
   {
-    usageName: 'ghd indexes view',
+    usageName: 'ghd index view',
     description: 'Print records from configured indexes',
   },
   async (args) => {
     if (args.input.length !== 0) {
       throw new Error(
-        'The indexes view command does not accept positional arguments.',
+        'The index view command does not accept positional arguments.',
       )
     }
     await viewIndexes()
