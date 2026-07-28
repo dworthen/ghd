@@ -1,10 +1,12 @@
 import { afterEach, describe, expect, test } from 'bun:test'
 import { mkdtemp, rm } from 'node:fs/promises'
-import { tmpdir } from 'node:os'
+import { homedir, tmpdir } from 'node:os'
 import { join } from 'node:path'
 import {
+  ConfigDirectory,
   configuredIndex,
   configuredIndexes,
+  defaultConfigPath,
   isConfig,
   loadConfig,
   parseConfig,
@@ -27,6 +29,44 @@ afterEach(async () => {
       .splice(0)
       .map((directory) => rm(directory, { recursive: true, force: true })),
   )
+})
+
+describe('Config directory', () => {
+  test('defaults to GHD_CONFIG_DIRECTORY or the user .ghd directory', () => {
+    expect(ConfigDirectory).toBe(
+      process.env.GHD_CONFIG_DIRECTORY ?? join(homedir(), '.ghd'),
+    )
+    expect(defaultConfigPath()).toBe(join(ConfigDirectory, 'ghd.config.yaml'))
+  })
+
+  test('uses GHD_CONFIG_DIRECTORY for the default config path', async () => {
+    const configDirectory = join(tmpdir(), 'ghd-custom-config')
+    const modulePath = import.meta.resolve('./index.ts')
+    const child = Bun.spawn(
+      [
+        process.execPath,
+        '-e',
+        `import { ConfigDirectory, defaultConfigPath } from ${JSON.stringify(modulePath)}; console.log(JSON.stringify({ ConfigDirectory, defaultConfigPath: defaultConfigPath() }))`,
+      ],
+      {
+        env: { ...process.env, GHD_CONFIG_DIRECTORY: configDirectory },
+        stdout: 'pipe',
+        stderr: 'pipe',
+      },
+    )
+    const [stdout, stderr, exitCode] = await Promise.all([
+      new Response(child.stdout).text(),
+      new Response(child.stderr).text(),
+      child.exited,
+    ])
+
+    expect(stderr).toBe('')
+    expect(exitCode).toBe(0)
+    expect(JSON.parse(stdout)).toEqual({
+      ConfigDirectory: configDirectory,
+      defaultConfigPath: join(configDirectory, 'ghd.config.yaml'),
+    })
+  })
 })
 
 describe('Config', () => {

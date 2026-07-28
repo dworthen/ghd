@@ -2,6 +2,9 @@ import { mkdir } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { dirname, join } from 'node:path'
 
+export const ConfigDirectory =
+  process.env.GHD_CONFIG_DIRECTORY ?? join(homedir(), '.ghd')
+
 export type Config = {
   indexes: Record<string, string>
 }
@@ -9,7 +12,7 @@ export type Config = {
 export type ConfigDocument = Record<string, unknown>
 
 export function defaultConfigPath(): string {
-  return join(homedir(), '.ghd', 'ghd.config.yaml')
+  return join(ConfigDirectory, 'ghd.config.yaml')
 }
 
 export function isConfig(value: unknown): value is Config {
