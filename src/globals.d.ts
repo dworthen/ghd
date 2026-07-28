@@ -6,3 +6,14 @@ declare const IS_BINARY: boolean
 
 type JsonPrimitive = string | number | boolean | null
 type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue }
+
+type Constructor<T = {}> = new (...args: any[]) => T
+
+export type Primitive =
+  | string
+  | number
+  | bigint
+  | boolean
+  | symbol
+  | null
+  | undefined
