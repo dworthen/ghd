@@ -7,7 +7,7 @@ import {
   loadRemoteIndex,
   parseIndexLocation,
 } from '../../indexes'
-import { type SetIndexDependencies, setIndex } from './set'
+import { type AddIndexDependencies, addIndex } from './add'
 
 const temporaryDirectories: string[] = []
 const validIndex = `repos:
@@ -24,7 +24,7 @@ const validIndex = `repos:
 `
 
 async function temporaryConfig(contents?: string): Promise<string> {
-  const directory = await mkdtemp(join(tmpdir(), 'ghd-index-set-'))
+  const directory = await mkdtemp(join(tmpdir(), 'ghd-index-add-'))
   temporaryDirectories.push(directory)
   const path = join(directory, '.ghd', 'ghd.config.yaml')
 
@@ -37,7 +37,7 @@ async function temporaryConfig(contents?: string): Promise<string> {
 
 function remoteDependencies(
   response: Response = new Response(validIndex),
-): SetIndexDependencies & {
+): AddIndexDependencies & {
   repositories: string[]
   requests: Array<{ url: string; init?: RequestInit }>
 } {
@@ -190,63 +190,54 @@ describe('loadRemoteIndex', () => {
   )
 })
 
-describe('setIndex', () => {
-  test('creates the config and stores a named validated index', async () => {
+describe('addIndex', () => {
+  test('creates the config and stores a validated index', async () => {
     const configPath = await temporaryConfig()
 
-    await setIndex('main', 'owner/repo/index.yaml', {
+    await addIndex('owner/repo/index.yaml', {
       ...remoteDependencies(),
       configPath,
     })
 
     expect(Bun.YAML.parse(await Bun.file(configPath).text())).toEqual({
-      indexes: { main: 'owner/repo/index.yaml' },
+      indexes: ['owner/repo/index.yaml'],
     })
   })
 
-  test('preserves other fields and index mappings while setting a key', async () => {
+  test('appends while preserving index order and other fields', async () => {
     const configPath = await temporaryConfig(
-      'indexes:\n  old: old/repo/index.yaml\nother: preserved\n',
+      'indexes: [old/repo/index.yaml]\nother: preserved\n',
     )
 
-    await setIndex('new', 'new/repo/path/index.yaml', {
+    await addIndex('new/repo/path/index.yaml', {
       ...remoteDependencies(),
       configPath,
     })
 
     expect(Bun.YAML.parse(await Bun.file(configPath).text())).toEqual({
-      indexes: {
-        old: 'old/repo/index.yaml',
-        new: 'new/repo/path/index.yaml',
-      },
+      indexes: ['old/repo/index.yaml', 'new/repo/path/index.yaml'],
       other: 'preserved',
     })
   })
 
-  test('replaces only the selected key', async () => {
-    const configPath = await temporaryConfig(
-      'indexes:\n  main: old/repo/index.yaml\n  docs: docs/repo/index.yaml\n',
-    )
+  test('does not add a duplicate index', async () => {
+    const original = 'indexes: [owner/repo/index.yaml]\nother: preserved\n'
+    const configPath = await temporaryConfig(original)
 
-    await setIndex('main', 'new/repo/index.yaml', {
+    await addIndex('owner/repo/index.yaml', {
       ...remoteDependencies(),
       configPath,
     })
 
-    expect(Bun.YAML.parse(await Bun.file(configPath).text())).toEqual({
-      indexes: {
-        main: 'new/repo/index.yaml',
-        docs: 'docs/repo/index.yaml',
-      },
-    })
+    expect(await Bun.file(configPath).text()).toBe(original)
   })
 
   test('does not modify config when remote validation fails', async () => {
-    const original = 'indexes:\n  old: old/repo/index.yaml\n'
+    const original = 'indexes: [old/repo/index.yaml]\n'
     const configPath = await temporaryConfig(original)
 
     await expect(
-      setIndex('new', 'new/repo/index.yaml', {
+      addIndex('new/repo/index.yaml', {
         ...remoteDependencies(new Response('missing', { status: 404 })),
         configPath,
       }),
@@ -259,7 +250,7 @@ describe('setIndex', () => {
     const configPath = await temporaryConfig('- list item\n')
 
     await expect(
-      setIndex('main', 'owner/repo/index.yaml', {
+      addIndex('owner/repo/index.yaml', {
         ...remoteDependencies(),
         configPath,
       }),

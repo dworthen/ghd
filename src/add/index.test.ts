@@ -367,14 +367,12 @@ describe('add', () => {
     ).toBe(true)
   })
 
-  test('treats repeatable index values as configured names and filters loading', async () => {
+  test('treats repeatable index values as explicit index locations', async () => {
     const cwd = await temporaryDirectory()
     const globalConfigPath = join(cwd, 'global.yaml')
     await Bun.write(
       globalConfigPath,
-      `indexes:
-  ignored: ignored-owner/ignored-repo/index.yaml
-  chosen: index-owner/index-repo/index.yaml\n`,
+      'indexes: [ignored-owner/ignored-repo/index.yaml]\n',
     )
     const sha = '1234567890abcdef1234567890abcdef12345678'
     const loadedIndexes: string[] = []
@@ -399,7 +397,7 @@ describe('add', () => {
     const result = await add(
       'owner/repo',
       'vendor',
-      { cwd, include: ['*.ts'], index: ['chosen'] },
+      { cwd, include: ['*.ts'], index: ['index-owner/index-repo/index.yaml'] },
       {
         fetch: fetch as typeof globalThis.fetch,
         getGithubToken: async () => 'token',
@@ -432,8 +430,7 @@ describe('add', () => {
     const globalConfigPath = join(cwd, 'global.yaml')
     await Bun.write(
       globalConfigPath,
-      `indexes:
-  main: index-owner/repo/index.yaml\n`,
+      'indexes: [index-owner/repo/index.yaml]\n',
     )
     const sha = '1234567890abcdef1234567890abcdef12345678'
     const fetch = async (input: string | URL | Request) => {
@@ -487,8 +484,7 @@ describe('add', () => {
     const globalConfigPath = join(cwd, 'global.yaml')
     await Bun.write(
       globalConfigPath,
-      `indexes:
-  main: index-owner/index-repo/missing.yaml\n`,
+      'indexes: [index-owner/index-repo/missing.yaml]\n',
     )
     const sha = '1234567890abcdef1234567890abcdef12345678'
     const fetch = async (input: string | URL | Request) => {
@@ -526,8 +522,7 @@ describe('add', () => {
     const globalConfigPath = join(cwd, 'global.yaml')
     await Bun.write(
       globalConfigPath,
-      `indexes:
-  main: missing-owner/missing-repo/index.yaml\n`,
+      'indexes: [missing-owner/missing-repo/index.yaml]\n',
     )
     const sha = '1234567890abcdef1234567890abcdef12345678'
     const fetch = async (input: string | URL | Request) => {
@@ -567,8 +562,7 @@ describe('add', () => {
     const globalConfigPath = join(cwd, 'global.yaml')
     await Bun.write(
       globalConfigPath,
-      `indexes:
-  main: index-owner/repo/index.yaml\n`,
+      'indexes: [index-owner/repo/index.yaml]\n',
     )
     const sha = '1234567890abcdef1234567890abcdef12345678'
     const fetch = async (input: string | URL | Request) => {
@@ -629,8 +623,7 @@ describe('add', () => {
     await Bun.write(join(target, 'keep.txt'), 'keep')
     await Bun.write(
       globalConfigPath,
-      `indexes:
-  main: index-owner/repo/index.yaml\n`,
+      'indexes: [index-owner/repo/index.yaml]\n',
     )
     let calls = 0
     const mustNotFetch: typeof globalThis.fetch = Object.assign(

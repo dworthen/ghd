@@ -23,13 +23,10 @@ afterEach(async () => {
 })
 
 describe('listIndexes', () => {
-  test('loads and prints configured indexes as exact JSON by default', async () => {
-    const indexes = {
-      first: 'owner/one/index.yaml',
-      spaced: '  owner/two/index.yaml  ',
-    }
+  test('loads and prints the configured index list as exact JSON by default', async () => {
+    const indexes = ['owner/one/index.yaml', '  owner/two/index.yaml  ']
     const path = await temporaryConfig(
-      "indexes:\n  first: owner/one/index.yaml\n  spaced: '  owner/two/index.yaml  '\nother: preserved\n",
+      "indexes: [owner/one/index.yaml, '  owner/two/index.yaml  ']\nother: preserved\n",
     )
 
     const output = await listIndexes(undefined, path)
@@ -38,24 +35,10 @@ describe('listIndexes', () => {
     expect(output).toBe(JSON.stringify(indexes, null, 2))
   })
 
-  test('prints configured indexes as exact JSON when requested', async () => {
-    const indexes = { main: 'owner/repo/index.yaml' }
+  test('prints the index list as exact YAML when requested', async () => {
+    const indexes = ['owner/one/index.yaml', 'owner/two/index.yaml']
     const path = await temporaryConfig(
-      'indexes:\n  main: owner/repo/index.yaml\n',
-    )
-
-    expect(await listIndexes('json', path)).toBe(
-      JSON.stringify(indexes, null, 2),
-    )
-  })
-
-  test('prints configured indexes as exact YAML when requested', async () => {
-    const indexes = {
-      first: 'owner/one/index.yaml',
-      second: 'owner/two/index.yaml',
-    }
-    const path = await temporaryConfig(
-      'indexes:\n  first: owner/one/index.yaml\n  second: owner/two/index.yaml\n',
+      'indexes: [owner/one/index.yaml, owner/two/index.yaml]\n',
     )
 
     expect(await listIndexes('yaml', path)).toBe(
@@ -63,11 +46,11 @@ describe('listIndexes', () => {
     )
   })
 
-  test('prints an empty configured mapping in either format', async () => {
-    const path = await temporaryConfig('indexes: {}\n')
+  test('prints an empty configured list in either format', async () => {
+    const path = await temporaryConfig('indexes: []\n')
 
-    expect(await listIndexes('json', path)).toBe('{}')
-    expect(await listIndexes('yaml', path)).toBe('{}')
+    expect(await listIndexes('json', path)).toBe('[]')
+    expect(await listIndexes('yaml', path)).toBe('[]')
   })
 
   test('reports a missing default-style configuration path', async () => {

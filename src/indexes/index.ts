@@ -40,7 +40,7 @@ export type IndexLike<T> = {
 export interface LoadIndexesDependencies<T>
   extends LoadRemoteIndexDependencies {
   configPath?: string
-  indexes?: Record<string, string>
+  indexes?: string[]
   loadIndex?: (
     index: string,
     dependencies: LoadRemoteIndexDependencies,
@@ -157,18 +157,17 @@ export async function loadRemoteIndex(
 }
 
 export async function loadIndexes<T = IndexRecord>(
-  names?: string[],
+  indexes?: string[],
   dependencies: LoadIndexesDependencies<T> = {},
 ): Promise<IndexLike<T>> {
-  const configPath = dependencies.configPath ?? UserConfigPath
-  let configured = dependencies.indexes
-  if (configured === undefined) {
+  let selectedIndexes = indexes ?? dependencies.indexes
+  if (selectedIndexes === undefined) {
+    const configPath = dependencies.configPath ?? UserConfigPath
     if (!(await Bun.file(configPath).exists())) {
       throw new Error(`Configuration file not found at ${configPath}.`)
     }
-    configured = (await new UserConfig(configPath).read()).indexes
+    selectedIndexes = (await new UserConfig(configPath).read()).indexes
   }
-  const selectedNames = names ?? Object.keys(configured)
   const loadIndex =
     dependencies.loadIndex ??
     (loadRemoteIndex as unknown as (
@@ -177,12 +176,8 @@ export async function loadIndexes<T = IndexRecord>(
     ) => Promise<IndexLike<T>>)
   const repos: Record<string, T> = {}
 
-  for (const name of selectedNames) {
-    const location = Object.hasOwn(configured, name)
-      ? configured[name]
-      : undefined
-    if (location === undefined) continue
-    const loaded = await loadIndex(location, dependencies)
+  for (const index of selectedIndexes) {
+    const loaded = await loadIndex(index, dependencies)
     Object.assign(repos, loaded.repos)
   }
 

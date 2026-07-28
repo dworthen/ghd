@@ -33,7 +33,7 @@ const record = (description: string): Index['repos'][string] => ({
 describe('viewIndexes', () => {
   test('loads all configured indexes and merges them in configuration order', async () => {
     const configPath = await temporaryConfig(
-      'indexes:\n  first: owner/one/index.yaml\n  second: owner/two/index.yaml\n',
+      'indexes: [owner/one/index.yaml, owner/two/index.yaml]\n',
     )
     const loaded: string[] = []
     const output = await viewIndexes(undefined, 'json', {
@@ -56,44 +56,41 @@ describe('viewIndexes', () => {
     })
   })
 
-  test('filters by multiple names in caller order and later indexes win conflicts', async () => {
-    const configPath = await temporaryConfig(
-      'indexes:\n  first: owner/one/index.yaml\n  second: owner/two/index.yaml\n  third: owner/three/index.yaml\n',
-    )
+  test('loads explicit indexes in caller order and later indexes win conflicts', async () => {
     const loaded: string[] = []
-    const output = await viewIndexes(['third', 'first'], 'yaml', {
-      configPath,
+    const indexes = ['owner/three/index.yaml', 'owner/one/index.yaml']
+    const output = await viewIndexes(indexes, 'yaml', {
       loadIndex: async (location) => {
         loaded.push(location)
         return { repos: { 'owner/shared': record(location) } }
       },
     })
 
-    expect(loaded).toEqual(['owner/three/index.yaml', 'owner/one/index.yaml'])
+    expect(loaded).toEqual(indexes)
     expect(Bun.YAML.parse(output)).toEqual({
       repos: { 'owner/shared': record('owner/one/index.yaml') },
     })
   })
 
-  test('preserves duplicate filter names rather than deduplicating them', async () => {
-    const configPath = await temporaryConfig(
-      'indexes:\n  first: owner/one/index.yaml\n',
-    )
+  test('preserves explicit duplicate indexes rather than deduplicating them', async () => {
     const loaded: string[] = []
-    await viewIndexes(['first', 'first'], 'json', {
-      configPath,
-      loadIndex: async (location) => {
-        loaded.push(location)
-        return { repos: {} }
+    await viewIndexes(
+      ['owner/one/index.yaml', 'owner/one/index.yaml'],
+      'json',
+      {
+        loadIndex: async (location) => {
+          loaded.push(location)
+          return { repos: {} }
+        },
       },
-    })
+    )
     expect(loaded).toEqual(['owner/one/index.yaml', 'owner/one/index.yaml'])
   })
 
-  test('permissively ignores unknown names and accepts an empty mapping', async () => {
-    const configPath = await temporaryConfig('indexes: {}\n')
+  test('accepts an empty configured list', async () => {
+    const configPath = await temporaryConfig('indexes: []\n')
     await expect(
-      viewIndexes(['missing', 'toString', 'constructor'], 'json', {
+      viewIndexes(undefined, 'json', {
         configPath,
         loadIndex: async () => {
           throw new Error('must not load')

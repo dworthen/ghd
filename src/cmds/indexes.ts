@@ -1,7 +1,7 @@
 import { createCommand } from '@d-dev/roar'
-import { getIndexCmd } from './indexes/get'
+import { addIndexCmd } from './indexes/add'
 import { listIndexesCmd } from './indexes/list'
-import { setIndexCmd } from './indexes/set'
+import { removeIndexCmd } from './indexes/remove'
 import { viewIndexCmd } from './indexes/view'
 
 export const indexesCmd = createCommand({
@@ -9,7 +9,7 @@ export const indexesCmd = createCommand({
   description: 'Manage configured indexes',
 })
 
-indexesCmd.addCommand('get', getIndexCmd)
+indexesCmd.addCommand('add', addIndexCmd)
 indexesCmd.addCommand('list', listIndexesCmd)
-indexesCmd.addCommand('set', setIndexCmd)
+indexesCmd.addCommand('remove', removeIndexCmd)
 indexesCmd.addCommand('view', viewIndexCmd)

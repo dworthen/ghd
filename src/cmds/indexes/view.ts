@@ -12,7 +12,7 @@ export type ViewIndexDependencies = LoadIndexesDependencies<
 
 export const viewIndexCmd = createCommand(
   {
-    usageName: 'ghd indexes view [names...]',
+    usageName: 'ghd indexes view [indexes...]',
     description: 'Download, merge, and print configured indexes',
     flags: {
       format: {
@@ -35,11 +35,11 @@ export const viewIndexCmd = createCommand(
 )
 
 export async function viewIndexes(
-  names: string[] | undefined,
+  indexes: string[] | undefined,
   format: ViewFormat = 'json',
   dependencies: ViewIndexDependencies = {},
 ): Promise<string> {
-  const loaded = await loadIndexes(names, dependencies)
+  const loaded = await loadIndexes(indexes, dependencies)
   return stringifyIndex(loaded, format)
 }
 

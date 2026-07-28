@@ -162,8 +162,7 @@ describe('install', () => {
     const globalConfigPath = join(cwd, 'global.yaml')
     await Bun.write(
       globalConfigPath,
-      `indexes:
-  main: index-owner/index-repo/index.yaml\n`,
+      'indexes: [index-owner/index-repo/index.yaml]\n',
     )
     await Bun.write(
       join(cwd, 'ghd.config.yaml'),

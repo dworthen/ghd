@@ -10,7 +10,11 @@ and is managed by [Changelog](https://github.com/dworthen/changelog).
 
 ### Add
 
-unknown: Add concurrency pattern with WorkerPool and Channel.
+3f5e91e: Add concurrency pattern with WorkerPool and Channel.
+
+### Fix
+
+unknown: BC: Changed UserConfig indexes to string[] from Record<string, string>
 
 ## 0.2.0 - 2026-07-27
 

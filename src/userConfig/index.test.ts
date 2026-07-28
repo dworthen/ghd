@@ -9,7 +9,6 @@ import {
   ValidationError,
 } from '../errors'
 import {
-  configuredIndex,
   isUserConfigDocument,
   UserConfig,
   UserConfigDirectory,
@@ -85,16 +84,18 @@ describe('UserConfig paths', () => {
 })
 
 describe('UserConfig document validation', () => {
-  test('requires a plain indexes record mapping names to verbatim strings', () => {
-    const indexes = Object.assign(Object.create(null), {
-      main: '  owner/repo/index.yaml  ',
-    }) as Record<string, string>
+  test('requires a unique list of verbatim strings', () => {
+    const indexes = ['owner/repo/index.yaml', '  custom index  ']
     expect(isUserConfigDocument({ indexes })).toBe(true)
-    expect(isUserConfigDocument({ indexes: {} })).toBe(true)
+    expect(isUserConfigDocument({ indexes: [] })).toBe(true)
     expect(isUserConfigDocument({ index: 'owner/repo/index.yaml' })).toBe(false)
-    expect(isUserConfigDocument({ indexes: [] })).toBe(false)
-    expect(isUserConfigDocument({ indexes: { main: 42 } })).toBe(false)
-    expect(isUserConfigDocument({ indexes: new Map() })).toBe(false)
+    expect(isUserConfigDocument({ indexes: {} })).toBe(false)
+    expect(isUserConfigDocument({ indexes: [42] })).toBe(false)
+    expect(
+      isUserConfigDocument({
+        indexes: ['owner/repo/index.yaml', 'owner/repo/index.yaml'],
+      }),
+    ).toBe(false)
   })
 
   test('validate rejects an unloaded config with the custom error', async () => {
@@ -114,7 +115,7 @@ describe('UserConfig read', () => {
     async (contents) => {
       const path = await temporaryConfigPath()
       if (contents !== undefined) await Bun.write(path, contents)
-      expect(await new UserConfig(path).read()).toEqual({ indexes: {} })
+      expect(await new UserConfig(path).read()).toEqual({ indexes: [] })
     },
   )
 
@@ -122,24 +123,27 @@ describe('UserConfig read', () => {
     const path = await temporaryConfigPath()
     await Bun.write(
       path,
-      "indexes:\n  main: owner/repo/index.yaml\n  spaced: '  value  '\nother: preserved\n",
+      "indexes: [owner/repo/index.yaml, '  value  ']\nother: preserved\n",
     )
     const file = new UserConfig(path)
     const first = await file.read()
-    await Bun.write(path, 'indexes:\n  changed: changed/repo/index.yaml\n')
+    await Bun.write(path, 'indexes: [changed/repo/index.yaml]\n')
     const second = await file.read()
 
     expect(second).toBe(first)
     expect(second as unknown).toEqual({
-      indexes: {
-        main: 'owner/repo/index.yaml',
-        spaced: '  value  ',
-      },
+      indexes: ['owner/repo/index.yaml', '  value  '],
       other: 'preserved',
     })
   })
 
-  test.each(['{}\n', 'indexes: []\n', 'indexes:\n  main: 42\n', '- item\n'])(
+  test.each([
+    '{}\n',
+    'indexes: {}\n',
+    'indexes: [owner/repo/index.yaml, 42]\n',
+    'indexes: [same, same]\n',
+    '- item\n',
+  ])(
     'rejects an invalid document with ValidationError: %p',
     async (contents) => {
       const path = await temporaryConfigPath()
@@ -167,11 +171,11 @@ describe('UserConfig save', () => {
     const path = await temporaryConfigPath('.yml')
     const file = new UserConfig(path)
     const config = await file.read()
-    config.indexes.main = 'owner/repo/index.yaml'
+    config.indexes.push('owner/repo/index.yaml')
     await file.save()
 
     expect(Bun.YAML.parse(await Bun.file(path).text())).toEqual({
-      indexes: { main: 'owner/repo/index.yaml' },
+      indexes: ['owner/repo/index.yaml'],
     })
   })
 
@@ -193,20 +197,5 @@ describe('UserConfig save', () => {
       FileAlreadyExistsError,
     )
     expect(await Bun.file(path).text()).toBe('original')
-  })
-})
-
-describe('configuredIndex', () => {
-  test('returns own values verbatim and rejects missing or inherited names', () => {
-    const config = { indexes: { main: '  custom index  ' } }
-    expect(configuredIndex(config, 'main', 'config.yaml')).toBe(
-      '  custom index  ',
-    )
-    expect(() => configuredIndex(config, 'missing', 'config.yaml')).toThrow(
-      "Index 'missing' is not configured in config.yaml.",
-    )
-    expect(() => configuredIndex(config, 'toString', 'config.yaml')).toThrow(
-      "Index 'toString' is not configured in config.yaml.",
-    )
   })
 })

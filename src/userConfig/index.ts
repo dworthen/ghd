@@ -12,20 +12,25 @@ import {
   InvalidFileExtensionError,
   ValidationError,
 } from '../errors'
-import { isPlainRecord, isStringRecord } from '../utils/parsing'
+import { isPlainRecord } from '../utils/parsing'
 
 export const UserConfigDirectory =
   process.env.GHD_CONFIG_DIRECTORY ?? join(homedir(), '.ghd')
 export const UserConfigPath = join(UserConfigDirectory, 'ghd.config.yaml')
 
 export type UserConfigDocument = {
-  indexes: Record<string, string>
+  indexes: string[]
 }
 
 export function isUserConfigDocument(
   value: unknown,
 ): value is UserConfigDocument {
-  return isPlainRecord(value) && isStringRecord(value.indexes)
+  return (
+    isPlainRecord(value) &&
+    Array.isArray(value.indexes) &&
+    value.indexes.every((index) => typeof index === 'string') &&
+    new Set(value.indexes).size === value.indexes.length
+  )
 }
 
 export class UserConfig
@@ -51,13 +56,13 @@ export class UserConfig
 
     const file = Bun.file(this.#configPath)
     if (!(await file.exists())) {
-      this.#config = { indexes: {} }
+      this.#config = { indexes: [] }
       return this.#config
     }
 
     const contents = await file.text()
     if (contents.trim() === '') {
-      this.#config = { indexes: {} }
+      this.#config = { indexes: [] }
       return this.#config
     }
 
@@ -92,9 +97,9 @@ export class UserConfig
         `Configuration file at ${this.#configPath} is not a YAML mapping.`,
       )
     }
-    if (!isStringRecord(this.#config.indexes)) {
+    if (!isUserConfigDocument(this.#config)) {
       throw new ValidationError(
-        `No indexes are configured in ${this.#configPath}. Expected an indexes mapping whose values are strings.`,
+        `No indexes are configured in ${this.#configPath}. Expected indexes to be a unique list of strings.`,
       )
     }
   }
@@ -125,18 +130,4 @@ export class UserConfig
     await this.validate()
     await Bun.write(this.#configPath, Bun.YAML.stringify(this.#config, null, 2))
   }
-}
-
-export function configuredIndex(
-  config: UserConfigDocument,
-  name: string,
-  configPath: string = UserConfigPath,
-): string {
-  const index = Object.hasOwn(config.indexes, name)
-    ? config.indexes[name]
-    : undefined
-  if (index === undefined) {
-    throw new Error(`Index '${name}' is not configured in ${configPath}.`)
-  }
-  return index
 }
