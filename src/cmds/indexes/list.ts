@@ -1,5 +1,5 @@
 import { createCommand } from '@d-dev/roar'
-import { defaultConfigPath, loadConfig } from '../../config'
+import { UserConfig, UserConfigPath } from '../../userConfig'
 
 export type ListFormat = 'json' | 'yaml'
 
@@ -24,13 +24,12 @@ export const listIndexesCmd = createCommand(
 
 export async function listIndexes(
   format: ListFormat = 'json',
-  configPath: string = defaultConfigPath(),
+  configPath: string = UserConfigPath,
 ): Promise<string> {
-  const config = await loadConfig(configPath)
-  if (config === undefined) {
+  if (!(await Bun.file(configPath).exists())) {
     throw new Error(`Configuration file not found at ${configPath}.`)
   }
-
+  const config = await new UserConfig(configPath).load()
   return format === 'yaml'
     ? Bun.YAML.stringify(config.indexes, null, 2)
     : JSON.stringify(config.indexes, null, 2)

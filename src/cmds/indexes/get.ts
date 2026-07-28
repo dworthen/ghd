@@ -1,5 +1,5 @@
 import { createCommand } from '@d-dev/roar'
-import { configuredIndex, defaultConfigPath, loadConfig } from '../../config'
+import { configuredIndex, UserConfig, UserConfigPath } from '../../userConfig'
 
 export const getIndexCmd = createCommand(
   {
@@ -18,12 +18,11 @@ export const getIndexCmd = createCommand(
 
 export async function readIndex(
   name: string,
-  configPath: string = defaultConfigPath(),
+  configPath: string = UserConfigPath,
 ): Promise<string> {
-  const config = await loadConfig(configPath)
-  if (config === undefined) {
+  if (!(await Bun.file(configPath).exists())) {
     throw new Error(`Configuration file not found at ${configPath}.`)
   }
-
+  const config = await new UserConfig(configPath).load()
   return configuredIndex(config, name, configPath)
 }

@@ -1,5 +1,6 @@
-import { configuredIndexes, defaultConfigPath, loadConfig } from '../config'
+import { UserConfig, UserConfigPath } from '../userConfig'
 import { getGithubToken } from '../utils/github-token'
+import { isPlainRecord, isRecord } from '../utils/parsing'
 
 export type Primitive =
   | string
@@ -159,14 +160,13 @@ export async function loadIndexes<T = IndexRecord>(
   names?: string[],
   dependencies: LoadIndexesDependencies<T> = {},
 ): Promise<IndexLike<T>> {
-  const configPath = dependencies.configPath ?? defaultConfigPath()
+  const configPath = dependencies.configPath ?? UserConfigPath
   let configured = dependencies.indexes
   if (configured === undefined) {
-    const config = await loadConfig(configPath)
-    if (config === undefined) {
+    if (!(await Bun.file(configPath).exists())) {
       throw new Error(`Configuration file not found at ${configPath}.`)
     }
-    configured = configuredIndexes(config, configPath)
+    configured = (await new UserConfig(configPath).load()).indexes
   }
   const selectedNames = names ?? Object.keys(configured)
   const loadIndex =
@@ -192,15 +192,6 @@ export async function loadIndexes<T = IndexRecord>(
 function isGithubSlug(value: string): boolean {
   const parts = value.split('/')
   return parts.length >= 2 && parts.every((part) => part.length > 0)
-}
-
-function isPlainRecord(value: unknown): value is Record<string, unknown> {
-  if (!isRecord(value)) return false
-  const prototype = Object.getPrototypeOf(value)
-  return prototype === Object.prototype || prototype === null
-}
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
 export function isMetadata(

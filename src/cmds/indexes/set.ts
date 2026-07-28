@@ -1,11 +1,6 @@
 import { createCommand } from '@d-dev/roar'
-import {
-  defaultConfigPath,
-  loadConfigDocument,
-  saveConfig,
-  withConfiguredIndex,
-} from '../../config'
 import { type LoadRemoteIndexDependencies, loadIndexes } from '../../indexes'
+import { UserConfig, UserConfigPath } from '../../userConfig'
 
 export interface SetIndexDependencies extends LoadRemoteIndexDependencies {
   configPath?: string
@@ -38,7 +33,9 @@ export async function setIndex(
 ): Promise<void> {
   await loadIndexes([name], { ...dependencies, indexes: { [name]: index } })
 
-  const configPath = dependencies.configPath ?? defaultConfigPath()
-  const existing = (await loadConfigDocument(configPath)) ?? {}
-  await saveConfig(withConfiguredIndex(existing, name, index), configPath)
+  const configPath = dependencies.configPath ?? UserConfigPath
+  const file = new UserConfig(configPath)
+  const config = await file.load()
+  config.indexes[name] = index
+  await file.save()
 }

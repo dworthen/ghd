@@ -1,7 +1,6 @@
 import { lstat, mkdir, rm, unlink } from 'node:fs/promises'
 import { dirname, join, relative, resolve } from 'node:path'
 import { Glob } from 'bun'
-import { defaultConfigPath, loadConfigDocument } from '../config'
 import {
   type Index,
   IndexNotFoundError,
@@ -11,6 +10,7 @@ import {
   loadRemoteIndex,
 } from '../indexes'
 import { type LocalConfig } from '../install/local-config'
+import { UserConfigPath } from '../userConfig'
 import { getGithubToken } from '../utils/github-token'
 
 const API_ROOT = 'https://api.github.com'
@@ -189,28 +189,28 @@ export async function add(
       return { status: 'skipped', targetDirectory }
     }
   }
-  const globalConfigPath = dependencies.globalConfigPath ?? defaultConfigPath()
+  const globalConfigPath = dependencies.globalConfigPath ?? UserConfigPath
   const shouldLoadIndexes =
     options.index !== undefined || options.loadGlobalIndex !== false
-  if (shouldLoadIndexes) {
-    const globalConfig = await loadConfigDocument(globalConfigPath)
-    if (globalConfig !== undefined || options.index !== undefined) {
-      try {
-        index = await loadIndexes(options.index, {
-          configPath: globalConfigPath,
-          fetch: request,
-          getGithubToken: findToken,
-          loadIndex: getIndex,
-        })
-      } catch (error) {
-        if (
-          !canRunWithoutIndex ||
-          (error instanceof Error &&
-            !error.message.startsWith('No indexes are configured') &&
-            !(error instanceof IndexNotFoundError))
-        ) {
-          throw error
-        }
+  if (
+    shouldLoadIndexes &&
+    ((await Bun.file(globalConfigPath).exists()) || options.index !== undefined)
+  ) {
+    try {
+      index = await loadIndexes(options.index, {
+        configPath: globalConfigPath,
+        fetch: request,
+        getGithubToken: findToken,
+        loadIndex: getIndex,
+      })
+    } catch (error) {
+      if (
+        !canRunWithoutIndex ||
+        (error instanceof Error &&
+          !error.message.startsWith('No indexes are configured') &&
+          !(error instanceof IndexNotFoundError))
+      ) {
+        throw error
       }
     }
   }

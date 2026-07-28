@@ -1,0 +1,136 @@
+import { mkdir } from 'node:fs/promises'
+import { homedir } from 'node:os'
+import { dirname, join, resolve } from 'node:path'
+import {
+  FileAlreadyExistsError,
+  FileNotLoadedError,
+  InvalidFileExtensionError,
+  ValidationError,
+} from '../errors'
+import { type FileManager } from '../FileManager'
+import { isPlainRecord, isStringRecord } from '../utils/parsing'
+
+export const UserConfigDirectory =
+  process.env.GHD_CONFIG_DIRECTORY ?? join(homedir(), '.ghd')
+export const UserConfigPath = join(UserConfigDirectory, 'ghd.config.yaml')
+
+export type UserConfigDocument = {
+  indexes: Record<string, string>
+}
+
+export function isUserConfigDocument(
+  value: unknown,
+): value is UserConfigDocument {
+  return isPlainRecord(value) && isStringRecord(value.indexes)
+}
+
+export class UserConfig implements FileManager<UserConfigDocument> {
+  #configPath: string
+  #config: UserConfigDocument | null = null
+
+  constructor(configPath: string = UserConfigPath) {
+    this.#configPath = resolve(configPath)
+    if (
+      !this.#configPath.endsWith('.yml') &&
+      !this.#configPath.endsWith('.yaml')
+    ) {
+      throw new InvalidFileExtensionError(
+        `User configuration path must end with .yml or .yaml: ${this.#configPath}`,
+      )
+    }
+  }
+
+  async load(): Promise<UserConfigDocument> {
+    if (this.#config !== null) return this.#config
+
+    const file = Bun.file(this.#configPath)
+    if (!(await file.exists())) {
+      this.#config = { indexes: {} }
+      return this.#config
+    }
+
+    const contents = await file.text()
+    if (contents.trim() === '') {
+      this.#config = { indexes: {} }
+      return this.#config
+    }
+
+    let parsed: unknown
+    try {
+      parsed = Bun.YAML.parse(contents)
+    } catch (error) {
+      const detail = error instanceof Error ? `: ${error.message}` : ''
+      throw new ValidationError(
+        `User configuration at ${this.#configPath} is not valid YAML${detail}`,
+      )
+    }
+
+    this.#config = parsed as UserConfigDocument
+    try {
+      await this.validate()
+    } catch (error) {
+      this.#config = null
+      throw error
+    }
+    return this.#config
+  }
+
+  async validate(): Promise<void> {
+    if (this.#config === null) {
+      throw new ValidationError(
+        `User configuration at ${this.#configPath} has not been loaded.`,
+      )
+    }
+    if (!isPlainRecord(this.#config)) {
+      throw new ValidationError(
+        `Configuration file at ${this.#configPath} is not a YAML mapping.`,
+      )
+    }
+    if (!isStringRecord(this.#config.indexes)) {
+      throw new ValidationError(
+        `No indexes are configured in ${this.#configPath}. Expected an indexes mapping whose values are strings.`,
+      )
+    }
+  }
+
+  async save(
+    throwIfExists: boolean = false,
+    saveEmpty: boolean = false,
+  ): Promise<void> {
+    const file = Bun.file(this.#configPath)
+    if (throwIfExists && (await file.exists())) {
+      throw new FileAlreadyExistsError(
+        `User configuration already exists at ${this.#configPath}.`,
+      )
+    }
+
+    if (this.#config === null && !saveEmpty) {
+      throw new FileNotLoadedError(
+        `User configuration at ${this.#configPath} has not been loaded.`,
+      )
+    }
+
+    await mkdir(dirname(this.#configPath), { recursive: true })
+    if (this.#config === null) {
+      await Bun.write(this.#configPath, '')
+      return
+    }
+
+    await this.validate()
+    await Bun.write(this.#configPath, Bun.YAML.stringify(this.#config, null, 2))
+  }
+}
+
+export function configuredIndex(
+  config: UserConfigDocument,
+  name: string,
+  configPath: string = UserConfigPath,
+): string {
+  const index = Object.hasOwn(config.indexes, name)
+    ? config.indexes[name]
+    : undefined
+  if (index === undefined) {
+    throw new Error(`Index '${name}' is not configured in ${configPath}.`)
+  }
+  return index
+}
