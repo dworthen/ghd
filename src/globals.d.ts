@@ -4,9 +4,19 @@
  */
 declare const IS_BINARY: boolean
 
-type JsonPrimitive = string | number | boolean | null
-type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue }
+declare type JsonPrimitive = string | number | boolean | null
+declare type JsonValue =
+  | JsonPrimitive
+  | JsonValue[]
+  | { [key: string]: JsonValue }
 
-type Constructor<T = unknown> = new (...args: any[]) => T
+declare type Constructor<T = unknown> = new (...args: any[]) => T
 
-type Primitive = string | number | bigint | boolean | symbol | null | undefined
+declare type Primitive =
+  | string
+  | number
+  | bigint
+  | boolean
+  | symbol
+  | null
+  | undefined
