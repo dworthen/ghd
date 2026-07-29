@@ -1,6 +1,5 @@
 import { createCommand } from '@d-dev/roar'
 import { type LoadRemoteIndexDependencies } from '../../index/index'
-import { UserConfigPath } from '../../paths'
 import { UserConfig } from '../../userConfig'
 
 export interface AddIndexDependencies extends LoadRemoteIndexDependencies {
@@ -18,22 +17,20 @@ export const addIndexCmd = createCommand(
     }
 
     const index = args.input[0]
-    if (index === undefined) return
+    if (index === undefined) {
+      console.error(
+        'The index add command requires one positional argument, the index.',
+      )
+      args.showHelp()
+      return
+    }
 
-    await addIndex(index)
+    const userConfigFile = new UserConfig()
+    const userConfig = await userConfigFile.read()
+    if (!userConfig.indexes.includes(index)) {
+      userConfig.indexes.push(index)
+      await userConfigFile.save()
+    }
     console.log(`Index ${index} added.`)
   },
 )
-
-export async function addIndex(
-  index: string,
-  dependencies: AddIndexDependencies = {},
-): Promise<void> {
-  const configPath = dependencies.configPath ?? UserConfigPath
-  const file = new UserConfig(configPath)
-  const config = await file.read()
-  if (!config.indexes.includes(index)) {
-    config.indexes.push(index)
-    await file.save()
-  }
-}

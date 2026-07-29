@@ -1,5 +1,4 @@
 import { createCommand } from '@d-dev/roar'
-import { UserConfigPath } from '../../paths'
 import { UserConfig } from '../../userConfig'
 
 export interface RemoveIndexDependencies {
@@ -17,23 +16,21 @@ export const removeIndexCmd = createCommand(
     }
 
     const index = args.input[0]
-    if (index === undefined) return
+    if (index == null || index.trim() === '') {
+      console.error(
+        'The index remove command requires one positional argument, the index.',
+      )
+      args.showHelp()
+      return
+    }
 
-    await removeIndex(index)
+    const file = new UserConfig()
+    const config = await file.read()
+    const position = config.indexes.indexOf(index)
+    if (position === -1) return
+
+    config.indexes.splice(position, 1)
+    await file.save()
     console.log(`Index ${index} removed.`)
   },
 )
-
-export async function removeIndex(
-  index: string,
-  dependencies: RemoveIndexDependencies = {},
-): Promise<void> {
-  const configPath = dependencies.configPath ?? UserConfigPath
-  const file = new UserConfig(configPath)
-  const config = await file.read()
-  const position = config.indexes.indexOf(index)
-  if (position === -1) return
-
-  config.indexes.splice(position, 1)
-  await file.save()
-}
