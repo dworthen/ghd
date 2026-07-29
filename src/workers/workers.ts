@@ -1,7 +1,10 @@
-export type Workers = 'IndexFileDownloader'
+export type Workers = 'CollectionDownloader'
 
 export const WorkerPaths: Record<Workers, string> = {
-  IndexFileDownloader: IS_BINARY
-    ? './workers/indexFileDownloader.ts'
-    : new URL('./indexFileDownloader.ts', import.meta.url).href,
+  CollectionDownloader: IS_BINARY
+    ? './workers/collectionDownloader/collectionDownloader.worker.ts'
+    : new URL(
+        './collectionDownloader/collectionDownloader.worker.ts',
+        import.meta.url,
+      ).href,
 }
