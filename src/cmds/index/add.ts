@@ -1,6 +1,7 @@
 import { createCommand } from '@d-dev/roar'
 import { type LoadRemoteIndexDependencies } from '../../index/index'
-import { UserConfig, UserConfigPath } from '../../userConfig'
+import { UserConfigPath } from '../../paths'
+import { UserConfig } from '../../userConfig'
 
 export interface AddIndexDependencies extends LoadRemoteIndexDependencies {
   configPath?: string

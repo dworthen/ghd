@@ -1,6 +1,5 @@
 import { mkdir } from 'node:fs/promises'
-import { homedir } from 'node:os'
-import { dirname, join, resolve } from 'node:path'
+import { dirname, resolve } from 'node:path'
 import {
   type DataReader,
   type DataValidator,
@@ -12,11 +11,8 @@ import {
   InvalidFileExtensionError,
   ValidationError,
 } from '../errors'
+import { UserConfigPath } from '../paths'
 import { isPlainRecord } from '../utils/parsing'
-
-export const UserConfigDirectory =
-  process.env.GHD_CONFIG_DIRECTORY ?? join(homedir(), '.ghd')
-export const UserConfigPath = join(UserConfigDirectory, 'ghd.config.yaml')
 
 export type UserConfigDocument = {
   indexes: string[]

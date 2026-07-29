@@ -1,5 +1,6 @@
 import { createCommand } from '@d-dev/roar'
-import { UserConfig, UserConfigPath } from '../../userConfig'
+import { UserConfigPath } from '../../paths'
+import { UserConfig } from '../../userConfig'
 
 export type ListFormat = 'json' | 'yaml'
 

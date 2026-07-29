@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test } from 'bun:test'
 import { mkdtemp, rm } from 'node:fs/promises'
-import { homedir, tmpdir } from 'node:os'
+import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import {
   FileAlreadyExistsError,
@@ -8,12 +8,7 @@ import {
   InvalidFileExtensionError,
   ValidationError,
 } from '../errors'
-import {
-  isUserConfigDocument,
-  UserConfig,
-  UserConfigDirectory,
-  UserConfigPath,
-} from './index'
+import { isUserConfigDocument, UserConfig } from './index'
 
 const temporaryDirectories: string[] = []
 
@@ -31,43 +26,7 @@ afterEach(async () => {
   )
 })
 
-describe('UserConfig paths', () => {
-  test('uses GHD_CONFIG_DIRECTORY or the user .ghd directory', () => {
-    expect(UserConfigDirectory).toBe(
-      process.env.GHD_CONFIG_DIRECTORY ?? join(homedir(), '.ghd'),
-    )
-    expect(UserConfigPath).toBe(join(UserConfigDirectory, 'ghd.config.yaml'))
-  })
-
-  test('reads GHD_CONFIG_DIRECTORY when the module initializes', async () => {
-    const configDirectory = join(tmpdir(), 'ghd-custom-config')
-    const modulePath = import.meta.resolve('./index.ts')
-    const child = Bun.spawn(
-      [
-        process.execPath,
-        '-e',
-        `import { UserConfigDirectory, UserConfigPath } from ${JSON.stringify(modulePath)}; console.log(JSON.stringify({ UserConfigDirectory, UserConfigPath }))`,
-      ],
-      {
-        env: { ...process.env, GHD_CONFIG_DIRECTORY: configDirectory },
-        stdout: 'pipe',
-        stderr: 'pipe',
-      },
-    )
-    const [stdout, stderr, exitCode] = await Promise.all([
-      new Response(child.stdout).text(),
-      new Response(child.stderr).text(),
-      child.exited,
-    ])
-
-    expect(stderr).toBe('')
-    expect(exitCode).toBe(0)
-    expect(JSON.parse(stdout)).toEqual({
-      UserConfigDirectory: configDirectory,
-      UserConfigPath: join(configDirectory, 'ghd.config.yaml'),
-    })
-  })
-
+describe('UserConfig path validation', () => {
   test.each(['config.json', 'config.yaml.backup', 'config.YAML'])(
     'rejects a non-YAML path %p',
     (path) => {

@@ -11,7 +11,8 @@ import {
   loadRemoteIndex,
 } from '../index/index'
 import { type LocalConfig } from '../install/local-config'
-import { UserConfig, UserConfigPath } from '../userConfig'
+import { UserConfigPath } from '../paths'
+import { UserConfig } from '../userConfig'
 import { getGithubToken } from '../utils/github-token'
 
 const API_ROOT = 'https://api.github.com'

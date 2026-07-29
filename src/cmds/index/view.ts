@@ -4,7 +4,8 @@ import {
   type IndexManager,
   type IndexRecord,
 } from '../../index/index'
-import { UserConfig, UserConfigPath } from '../../userConfig'
+import { UserConfigPath } from '../../paths'
+import { UserConfig } from '../../userConfig'
 
 export interface ViewIndexesDependencies {
   configPath?: string
