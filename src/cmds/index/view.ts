@@ -33,7 +33,7 @@ export const viewIndexCmd = createCommand(
             process.stdout.write('[')
           } else {
             // process.stdout.write('\b\b')
-            process.stdout.write(',')
+            process.stdout.write(', ')
           }
           process.stdout.write(JSON.stringify(record, null, 2))
           count++
