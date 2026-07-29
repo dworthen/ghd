@@ -65,8 +65,12 @@ describe('viewIndexes', () => {
       ['owner/one/index.yaml', 'owner/two/index.yaml'],
     ])
     expect(calls).toEqual([
-      ['owner/one', 'tools', ' first '],
-      ['owner/two/path', 'templates', 'second'],
+      ['repoDirectory: owner/one'],
+      ['  collection: tools'],
+      ['  description:  first '],
+      ['repoDirectory: owner/two/path'],
+      ['  collection: templates'],
+      ['  description: second'],
     ])
   })
 
@@ -91,12 +95,16 @@ describe('viewIndexes', () => {
 })
 
 describe('printRecord', () => {
-  test('prints repoDirectory, collection, and description without normalizing', () => {
+  test('prints labeled values on separate lines with nested fields indented', () => {
     const calls: unknown[][] = []
     const log = (...values: unknown[]) => calls.push(values)
 
     printRecord(record('owner/repo', ' desc ', ' collection '), log)
 
-    expect(calls).toEqual([['owner/repo', ' collection ', ' desc ']])
+    expect(calls).toEqual([
+      ['repoDirectory: owner/repo'],
+      ['  collection:  collection '],
+      ['  description:  desc '],
+    ])
   })
 })

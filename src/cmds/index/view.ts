@@ -44,5 +44,7 @@ export function printRecord(
   record: IndexRecord,
   log: (...values: unknown[]) => void = console.log,
 ): void {
-  log(record.repoDirectory, record.collection, record.description)
+  log(`repoDirectory: ${record.repoDirectory}`)
+  log(`  collection: ${record.collection}`)
+  log(`  description: ${record.description}`)
 }
