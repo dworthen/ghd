@@ -6,3 +6,5 @@ export const UserConfigDirectory =
 export const UserConfigPath = join(UserConfigDirectory, 'ghd.config.yaml')
 
 export const CollectionDirectory = join(UserConfigDirectory, 'collections')
+
+export const CollectionCachePath = join(CollectionDirectory, 'cache.yaml')
