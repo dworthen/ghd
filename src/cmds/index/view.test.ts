@@ -26,10 +26,10 @@ afterEach(async () => {
 const record = (
   repoDirectory: string,
   description: string,
-  metadata?: IndexRecord['metadata'],
+  collection = 'tools',
 ): IndexRecord => ({
   repoDirectory,
-  metadata,
+  collection,
   description,
   include: [],
   exclude: [],
@@ -48,8 +48,8 @@ describe('viewIndexes', () => {
       }
 
       async *records(): AsyncIterableIterator<IndexRecord> {
-        yield record('owner/one', ' first ', { type: 'tools' })
-        yield record('owner/two/path', 'second')
+        yield record('owner/one', ' first ', 'tools')
+        yield record('owner/two/path', 'second', 'templates')
       }
     }
     const calls: unknown[][] = []
@@ -66,7 +66,7 @@ describe('viewIndexes', () => {
     ])
     expect(calls).toEqual([
       ['owner/one', 'tools', ' first '],
-      ['owner/two/path', 'second'],
+      ['owner/two/path', 'templates', 'second'],
     ])
   })
 
@@ -91,26 +91,12 @@ describe('viewIndexes', () => {
 })
 
 describe('printRecord', () => {
-  test('prints repoDirectory, metadata.type when present, and description without normalizing', () => {
+  test('prints repoDirectory, collection, and description without normalizing', () => {
     const calls: unknown[][] = []
     const log = (...values: unknown[]) => calls.push(values)
-    const types: Primitive[] = [
-      0,
-      false,
-      null,
-      ' type ',
-      1n,
-      Symbol.for('type'),
-      undefined,
-    ]
 
-    for (const type of types)
-      printRecord(record('owner/repo', ' desc ', { type }), log)
-    printRecord(record('owner/repo', ' desc '), log)
+    printRecord(record('owner/repo', ' desc ', ' collection '), log)
 
-    expect(calls).toEqual([
-      ...types.map((type) => ['owner/repo', type, ' desc ']),
-      ['owner/repo', ' desc '],
-    ])
+    expect(calls).toEqual([['owner/repo', ' collection ', ' desc ']])
   })
 })

@@ -11,8 +11,9 @@ export { GithubRequestError, IndexNotFoundError } from '../errors'
 import { isPlainRecord } from '../utils/parsing'
 
 export type IndexRecord = {
+  [key: string]: unknown
   repoDirectory: string
-  metadata?: Record<string, Primitive | Primitive[]>
+  collection: string
   description: string
   include: string[]
   exclude: string[]
@@ -228,9 +229,7 @@ function isIndexRecord(value: unknown): value is IndexRecord {
   return (
     isPlainRecord(value) &&
     isGithubSlug(value.repoDirectory) &&
-    (!('metadata' in value) ||
-      value.metadata === undefined ||
-      isMetadata(value.metadata)) &&
+    typeof value.collection === 'string' &&
     typeof value.description === 'string' &&
     isStringArray(value.include) &&
     isStringArray(value.exclude) &&
@@ -242,23 +241,6 @@ function isGithubSlug(value: unknown): value is string {
   if (typeof value !== 'string') return false
   const parts = value.split('/')
   return parts.length >= 2 && parts.every((part) => part.length > 0)
-}
-
-export function isMetadata(
-  value: unknown,
-): value is Record<string, Primitive | Primitive[]> {
-  return (
-    isPlainRecord(value) &&
-    Object.values(value).every((item) =>
-      Array.isArray(item) ? item.every(isPrimitive) : isPrimitive(item),
-    )
-  )
-}
-
-function isPrimitive(value: unknown): value is Primitive {
-  return (
-    value === null || (typeof value !== 'object' && typeof value !== 'function')
-  )
 }
 
 function isStringArray(value: unknown): value is string[] {

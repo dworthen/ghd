@@ -16,7 +16,8 @@ and is managed by [Changelog](https://github.com/dworthen/changelog).
 
 9880a96: BC: Changed UserConfig indexes to string[] from Record<string, string>
 2db4a7d: BC: Refactor Index type to be a list instead of a record. Add support for streaming over entries. Refactor cli commands to use new types
-unknown: BC: Rename ghd indexes commands to ghd index.
+4153aed: BC: Rename ghd indexes commands to ghd index.
+unknown: BC: Change the IndexRecord type.
 
 ## 0.2.0 - 2026-07-27
 

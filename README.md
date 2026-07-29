@@ -110,12 +110,7 @@ An index provides reusable include, exclude, and output-directory defaults. It i
 ```yaml
 # OWNER/INDEX_REPO/path/to/ghd.templates.yaml
 - repoDirectory: OWNER/REPO/path/to/templates
-  metadata: # Optional - can include any additional data
-    type: templates
-    languages:
-      - typescript
-      - json
-    stable: true
+  collection: templates
   description: Shared TypeScript and JSON templates
   include:
     - "**/*.ts"
@@ -125,8 +120,7 @@ An index provides reusable include, exclude, and output-directory defaults. It i
   outputDirectory: generated/templates
 ```
 
-Metadata values must be primitives or arrays of primitives. Nested metadata
-objects are not supported.
+Each record's collection identifies the kind of reusable files it contains.
 
 Configure a global index:
 

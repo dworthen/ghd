@@ -408,7 +408,7 @@ describe('add', () => {
           return [
             {
               repoDirectory: 'owner/repo',
-              metadata: { type: 'tools' },
+              collection: 'tools',
               description: 'Tooling files',
               include: ['**/*.ts', '*.ts'],
               exclude: ['secret.ts'],
@@ -437,8 +437,7 @@ describe('add', () => {
       const url = String(input)
       if (url.includes('/repos/index-owner/repo/contents/index.yaml')) {
         return new Response(`- repoDirectory: owner/repo
-  metadata:
-    type: tools
+  collection: tools
   description: Tooling files
   include: ['*.ts']
   exclude: ['skip.ts']
@@ -560,6 +559,7 @@ describe('add', () => {
           return [
             {
               repoDirectory: 'owner/repo',
+              collection: 'tools',
               description: 'first index record',
               include: ['*.ts'],
               exclude: ['blocked.ts'],
@@ -653,7 +653,7 @@ describe('add', () => {
         loadRemoteIndex: async () => [
           {
             repoDirectory: 'owner/repo',
-            metadata: { type: 'tools' },
+            collection: 'tools',
             description: 'Tooling files',
             include: ['*.ts'],
             exclude: [],

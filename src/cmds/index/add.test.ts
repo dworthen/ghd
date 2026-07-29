@@ -12,9 +12,7 @@ import { addIndex } from './add'
 
 const temporaryDirectories: string[] = []
 const validIndex = `- repoDirectory: octo-org/project/packages/app
-  metadata:
-    type: app
-    stable: true
+  collection: app
   description: Application package
   include:
     - '**/*.ts'
@@ -103,7 +101,7 @@ describe('loadRemoteIndex', () => {
     expect(index).toEqual([
       {
         repoDirectory: 'octo-org/project/packages/app',
-        metadata: { type: 'app', stable: true },
+        collection: 'app',
         description: 'Application package',
         include: ['**/*.ts'],
         exclude: ['**/*.test.ts'],
@@ -167,11 +165,11 @@ describe('loadRemoteIndex', () => {
     ['a mapping', '{}'],
     [
       'missing required fields',
-      '- repoDirectory: owner/repo\n  metadata: {}\n  description: Tools\n  include: []\n  exclude: []\n',
+      '- repoDirectory: owner/repo\n  collection: tools\n  description: Tools\n  include: []\n  exclude: []\n',
     ],
     [
       'non-string patterns',
-      '- repoDirectory: owner/repo/src\n  metadata: {}\n  description: Tools\n  include: [1]\n  exclude: []\n  outputDirectory: src\n',
+      '- repoDirectory: owner/repo/src\n  collection: tools\n  description: Tools\n  include: [1]\n  exclude: []\n  outputDirectory: src\n',
     ],
   ])(
     'rejects %s instead of returning a value that is not an Index',

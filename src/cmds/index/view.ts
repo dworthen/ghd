@@ -44,10 +44,5 @@ export function printRecord(
   record: IndexRecord,
   log: (...values: unknown[]) => void = console.log,
 ): void {
-  const metadata = record.metadata
-  if (metadata === undefined || !Object.hasOwn(metadata, 'type')) {
-    log(record.repoDirectory, record.description)
-    return
-  }
-  log(record.repoDirectory, metadata.type, record.description)
+  log(record.repoDirectory, record.collection, record.description)
 }

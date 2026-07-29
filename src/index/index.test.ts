@@ -10,7 +10,6 @@ import {
   IndexReader,
   type IndexRecord,
   isIndex,
-  isMetadata,
   parseIndex,
   parseIndexLocation,
 } from './index'
@@ -18,8 +17,10 @@ import {
 const record = (
   repoDirectory: string,
   description = 'Repository root',
+  collection = 'tools',
 ): IndexRecord => ({
   repoDirectory,
+  collection,
   description,
   include: ['**/*'],
   exclude: ['private/**'],
@@ -27,44 +28,28 @@ const record = (
 })
 
 describe('Index validation', () => {
-  test('accepts an array of records and optional metadata omission', () => {
+  test('accepts an array of records with arbitrary additional fields', () => {
     const index: Index = [
       record('owner/repo'),
       {
         ...record('owner/repo/path/to/directory'),
-        metadata: { type: 'tools' },
+        custom: { nested: true },
       },
     ]
 
     expect(Array.isArray(index)).toBe(true)
+    expect(index[1]?.custom).toEqual({ nested: true })
     expect(isIndex(index)).toBe(true)
     expect(isIndex([])).toBe(true)
     expect(isIndex({ repos: {} })).toBe(false)
     expect(isIndex([record('owner')])).toBe(false)
   })
 
-  test('accepts every global Primitive metadata type and arrays of them', () => {
-    const metadata: NonNullable<IndexRecord['metadata']> = {
-      string: 'value',
-      number: 2,
-      bigint: 1n,
-      boolean: true,
-      symbol: Symbol.for('value'),
-      null: null,
-      undefined,
-      values: ['value', 2, 1n, false, Symbol.for('other'), null, undefined],
-    }
-
-    expect(isMetadata(metadata)).toBe(true)
-    expect(isIndex([{ ...record('owner/repo'), metadata }])).toBe(true)
-    expect(isMetadata({ nested: {} })).toBe(false)
-    expect(isMetadata({ nested: [[]] })).toBe(false)
-  })
-
   test('requires every named IndexRecord field with the declared value type', () => {
     const valid = record('owner/repo')
     for (const key of [
       'repoDirectory',
+      'collection',
       'description',
       'include',
       'exclude',
@@ -75,12 +60,12 @@ describe('Index validation', () => {
       expect(isIndex([invalid])).toBe(false)
     }
     expect(isIndex([{ ...valid, include: [1] }])).toBe(false)
-    expect(isIndex([{ ...valid, metadata: undefined }])).toBe(true)
+    expect(isIndex([{ ...valid, collection: 1 }])).toBe(false)
   })
 
   test('parses a list without deduplicating, reordering, or normalizing text', () => {
     const parsed = parseIndex(
-      `- repoDirectory: 'owner/repo/  src  '\n  metadata:\n    type: ' duplicated type '\n  description: ' first '\n  include: [' z ', z]\n  exclude: []\n  outputDirectory: ' out '\n- repoDirectory: owner/repo/src\n  description: second\n  include: []\n  exclude: []\n  outputDirectory: out\n- repoDirectory: owner/repo/src\n  description: duplicate\n  include: []\n  exclude: []\n  outputDirectory: out\n`,
+      `- repoDirectory: 'owner/repo/  src  '\n  collection: ' duplicated type '\n  description: ' first '\n  include: [' z ', z]\n  exclude: []\n  outputDirectory: ' out '\n- repoDirectory: owner/repo/src\n  collection: tools\n  description: second\n  include: []\n  exclude: []\n  outputDirectory: out\n- repoDirectory: owner/repo/src\n  collection: tools\n  description: duplicate\n  include: []\n  exclude: []\n  outputDirectory: out\n`,
       'owner/index/catalog.yaml',
     )
 
@@ -92,7 +77,7 @@ describe('Index validation', () => {
     ])
     expect(parsed[0]).toEqual({
       repoDirectory: 'owner/repo/  src  ',
-      metadata: { type: ' duplicated type ' },
+      collection: ' duplicated type ',
       description: ' first ',
       include: [' z ', 'z'],
       exclude: [],
@@ -123,7 +108,7 @@ describe('IndexReader', () => {
     ) => {
       requests.push({ url: String(input), init })
       return new Response(
-        `- repoDirectory: octo-org/project/packages/app\n  metadata:\n    type: app\n  description: Application package\n  include: ['**/*.ts']\n  exclude: ['**/*.test.ts']\n  outputDirectory: packages/app\n`,
+        `- repoDirectory: octo-org/project/packages/app\n  collection: app\n  description: Application package\n  include: ['**/*.ts']\n  exclude: ['**/*.test.ts']\n  outputDirectory: packages/app\n`,
       )
     }
     const reader = new IndexReader(
