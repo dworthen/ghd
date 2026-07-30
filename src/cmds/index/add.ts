@@ -1,10 +1,7 @@
 import { createCommand } from '@d-dev/roar'
-import { type LoadRemoteIndexDependencies } from '../../index/index'
+import { DefaultIndexManager } from '../../index/index'
 import { UserConfig } from '../../userConfig'
-
-export interface AddIndexDependencies extends LoadRemoteIndexDependencies {
-  configPath?: string
-}
+import { DefaultCollectionDownloader } from '../../workers/collectionDownloader/collectionDownloader'
 
 export const addIndexCmd = createCommand(
   {
@@ -31,6 +28,9 @@ export const addIndexCmd = createCommand(
       userConfig.indexes.push(index)
       await userConfigFile.save()
     }
+
+    const indexManager = new DefaultIndexManager([index])
+    await new DefaultCollectionDownloader(indexManager).download()
     console.log(`Index ${index} added.`)
   },
 )
