@@ -30,11 +30,17 @@ afterEach(async () => {
 })
 
 describe('CollectionCache validation', () => {
-  test('accepts exactly plain records with string values', () => {
-    expect(isCollectionCache({ repo: 'hash', duplicate: 'hash' })).toBe(true)
-    expect(isCollectionCache({})).toBe(true)
-    expect(isCollectionCache([])).toBe(false)
-    expect(isCollectionCache({ repo: 1 })).toBe(false)
+  test('accepts indexes with numeric timestamps and files with string hashes', () => {
+    expect(
+      isCollectionCache({ indexes: { index: 123 }, files: { repo: 'hash' } }),
+    ).toBe(true)
+    expect(isCollectionCache({ indexes: {}, files: {} })).toBe(true)
+    expect(isCollectionCache({ indexes: [], files: {} })).toBe(false)
+    expect(isCollectionCache({ indexes: { index: '123' }, files: {} })).toBe(
+      false,
+    )
+    expect(isCollectionCache({ indexes: {}, files: { repo: 1 } })).toBe(false)
+    expect(isCollectionCache({ indexes: {}, files: {} })).toBe(true)
     expect(isCollectionCache(null)).toBe(false)
   })
 
@@ -53,39 +59,48 @@ describe('CollectionCacheService read and save', () => {
       const path = await temporaryCachePath()
       if (contents !== undefined) await Bun.write(path, contents)
       const cache = await new CollectionCacheService(path).read()
-      expect(cache).toEqual({})
+      expect(cache).toEqual({ indexes: {}, files: {} })
       expect(Object.getPrototypeOf(cache)).toBe(Object.prototype)
     },
   )
 
   test('parses valid YAML verbatim, caches by identity, and writes mutations', async () => {
     const path = await temporaryCachePath()
-    await Bun.write(path, "' owner/repo ': 00Ab\nowner/other: deadbeef\n")
+    await Bun.write(
+      path,
+      "indexes:\n  ' owner/index ': 123\nfiles:\n  ' owner/repo ': 00Ab\n  owner/other: deadbeef\n",
+    )
     const service = new CollectionCacheService(path)
     const first = await service.read()
     await Bun.write(path, 'changed: ignored\n')
     const second = await service.read()
     expect(second).toBe(first)
     expect(second).toEqual({
-      ' owner/repo ': '00Ab',
-      'owner/other': 'deadbeef',
+      indexes: { ' owner/index ': 123 },
+      files: {
+        ' owner/repo ': '00Ab',
+        'owner/other': 'deadbeef',
+      },
     })
 
-    first['new/repo'] = '1234'
+    first.files['new/repo'] = '1234'
     await service.save()
     expect(Bun.YAML.parse(await Bun.file(path).text())).toEqual(first)
   })
 
-  test.each(['- item\n', 'repo: 42\n', 'repo: [hash]\n'])(
-    'rejects a non-string mapping %p',
-    async (contents) => {
-      const path = await temporaryCachePath()
-      await Bun.write(path, contents)
-      await expect(
-        new CollectionCacheService(path).read(),
-      ).rejects.toBeInstanceOf(ValidationError)
-    },
-  )
+  test.each([
+    '- item\n',
+    'indexes: []\nfiles: {}\n',
+    'indexes:\n  index: string\nfiles: {}\n',
+    'indexes: {}\nfiles:\n  repo: 42\n',
+    'indexes: {}\n',
+  ])('rejects an invalid cache mapping %p', async (contents) => {
+    const path = await temporaryCachePath()
+    await Bun.write(path, contents)
+    await expect(
+      new CollectionCacheService(path).read(),
+    ).rejects.toBeInstanceOf(ValidationError)
+  })
 
   test('wraps malformed YAML in ValidationError', async () => {
     const path = await temporaryCachePath()

@@ -191,26 +191,29 @@ export class IndexReader implements DataReader<Index>, DataValidator {
 }
 
 export interface IndexManager {
-  records(): AsyncIterableIterator<IndexRecord>
+  indexes(): AsyncIterableIterator<string>
+  records(index: string): AsyncIterableIterator<IndexRecord>
 }
 
 export class DefaultIndexManager implements IndexManager {
-  #indexes: string[]
-  #indexReaders: DataReader<Index>[]
+  #indexSlugs: string[]
+  #indexReaderConstructor: Constructor<DataReader<Index>>
 
   constructor(
     indexes: string[],
     cstor: Constructor<DataReader<Index>> = IndexReader,
   ) {
-    this.#indexes = indexes
-    this.#indexReaders = this.#indexes.map((index) => new cstor(index))
+    this.#indexSlugs = indexes
+    this.#indexReaderConstructor = cstor
   }
 
-  async *records(): AsyncIterableIterator<IndexRecord> {
-    for (const reader of this.#indexReaders) {
-      const index = await reader.read()
-      for (const record of index) yield record
-    }
+  async *indexes(): AsyncIterableIterator<string> {
+    yield* this.#indexSlugs
+  }
+
+  async *records(index: string): AsyncIterableIterator<IndexRecord> {
+    const records = await new this.#indexReaderConstructor(index).read()
+    yield* records
   }
 }
 

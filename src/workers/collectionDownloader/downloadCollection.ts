@@ -14,15 +14,15 @@ const writeConcurrency = 128
 export async function downloadCollection(
   index: Index,
   { collectionCache, collectionDirectory }: CollectionDownloaderWorkerOptions,
-): Promise<CollectionCache> {
-  const cache: CollectionCache = {}
+): Promise<CollectionCache['files']> {
+  const cache: CollectionCache['files'] = {}
   let cursor = 0
 
   async function work(): Promise<void> {
     while (cursor < index.length) {
       const { collection, description, repoDirectory } = index[cursor++]!
       const descriptionHash = hashStringToHex(description)
-      if (collectionCache[repoDirectory] !== descriptionHash) {
+      if (collectionCache.files[repoDirectory] !== descriptionHash) {
         const outputPath = join(
           collectionDirectory,
           collection,

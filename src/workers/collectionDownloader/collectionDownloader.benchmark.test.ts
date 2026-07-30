@@ -61,6 +61,10 @@ class Records implements IndexManager {
     this.#records = records
   }
 
+  async *indexes(): AsyncIterableIterator<string> {
+    yield 'benchmark/index.yaml'
+  }
+
   async *records(): AsyncIterableIterator<IndexRecord> {
     yield* this.#records
   }
@@ -130,9 +134,12 @@ describe('DefaultCollectionDownloader main thread vs web workers', () => {
       // useWebWorkers=true: batch and fan out across the worker pool.
       const pool = await run(records, 'ghd-bench-pool-', true)
 
-      // Correctness parity: identical cache maps and identical files on disk.
-      expect(pool.cache).toEqual(main.cache)
-      expect(Object.keys(main.cache)).toHaveLength(benchmarkCount)
+      // Correctness parity: identical file hashes and output files. Pull
+      // timestamps are intentionally independent completion times.
+      expect(pool.cache.files).toEqual(main.cache.files)
+      expect(Object.keys(pool.cache.indexes)).toEqual(['benchmark/index.yaml'])
+      expect(Object.keys(main.cache.indexes)).toEqual(['benchmark/index.yaml'])
+      expect(Object.keys(main.cache.files)).toHaveLength(benchmarkCount)
 
       const [mainFiles, poolFiles] = await Promise.all([
         collectFiles(main.directory),

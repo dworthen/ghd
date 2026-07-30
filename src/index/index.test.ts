@@ -220,10 +220,15 @@ describe('DefaultIndexManager', () => {
       'owner/two/index.yaml',
     ]
     const manager = new DefaultIndexManager(slugs, Reader)
+    const indexes: string[] = []
     const records: IndexRecord[] = []
 
-    for await (const item of manager.records()) records.push(item)
+    for await (const index of manager.indexes()) {
+      indexes.push(index)
+      for await (const item of manager.records(index)) records.push(item)
+    }
 
+    expect(indexes).toEqual(slugs)
     expect(constructed).toEqual(slugs)
     expect(read).toEqual(slugs)
     expect(records.map((item) => item.repoDirectory)).toEqual([

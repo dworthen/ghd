@@ -14,8 +14,11 @@ const record: IndexRecord = {
 }
 
 const manager: IndexManager = {
-  async *records() {
-    yield record
+  async *indexes() {
+    yield 'fixture/index.yaml'
+  },
+  async *records(index) {
+    if (index === 'fixture/index.yaml') yield record
   },
 }
 

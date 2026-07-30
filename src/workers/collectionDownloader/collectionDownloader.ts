@@ -21,6 +21,8 @@ export const collectionDownloaderConcurrency = Math.min(
   4,
 )
 
+export const indexCacheDuration = 24 * 60 * 60 * 1_000
+
 export interface CollectionDownloader {
   download(): Promise<void>
 }
@@ -45,10 +47,22 @@ export class DefaultCollectionDownloader implements CollectionDownloader {
 
   async download(): Promise<void> {
     const collectionCache = await this.#collectionCacheService.read()
-    if (this.#useWebWorkers) {
-      await this.#downloadWithWorkers(collectionCache)
-    } else {
-      await this.#downloadOnMainThread(collectionCache)
+    for await (const index of this.#indexManager.indexes()) {
+      const lastDownloaded = collectionCache.indexes[index]
+      if (
+        lastDownloaded !== undefined &&
+        Date.now() - lastDownloaded < indexCacheDuration
+      ) {
+        continue
+      }
+
+      if (this.#useWebWorkers) {
+        await this.#downloadWithWorkers(index, collectionCache)
+      } else {
+        await this.#downloadOnMainThread(index, collectionCache)
+      }
+      collectionCache.indexes[index] = Date.now()
+      await this.#collectionCacheService.save()
     }
     await this.#collectionCacheService.save()
   }
@@ -56,17 +70,23 @@ export class DefaultCollectionDownloader implements CollectionDownloader {
   // Batch the index and hand each batch to downloadCollection on this thread.
   // downloadCollection bounds its own file-open concurrency, so this stays safe
   // without the overhead of spawning workers.
-  async #downloadOnMainThread(collectionCache: CollectionCache): Promise<void> {
+  async #downloadOnMainThread(
+    index: string,
+    collectionCache: CollectionCache,
+  ): Promise<void> {
     const options = {
       collectionCache,
       collectionDirectory: this.#collectionDirectory,
     }
     let batch: Index = []
     const flush = async () => {
-      Object.assign(collectionCache, await downloadCollection(batch, options))
+      Object.assign(
+        collectionCache.files,
+        await downloadCollection(batch, options),
+      )
       batch = []
     }
-    for await (const record of this.#indexManager.records()) {
+    for await (const record of this.#indexManager.records(index)) {
       batch.push(record)
       if (batch.length === batchSize) await flush()
     }
@@ -74,14 +94,17 @@ export class DefaultCollectionDownloader implements CollectionDownloader {
   }
 
   // Batch the index and fan the batches out across a pool of web workers.
-  async #downloadWithWorkers(collectionCache: CollectionCache): Promise<void> {
+  async #downloadWithWorkers(
+    index: string,
+    collectionCache: CollectionCache,
+  ): Promise<void> {
     const pool = this.#createPool(collectionCache)
     let sendingError: unknown
 
     const sending = (async () => {
       let batch: Index = []
       try {
-        for await (const record of this.#indexManager.records()) {
+        for await (const record of this.#indexManager.records(index)) {
           batch.push(record)
           if (batch.length === batchSize) {
             await pool.send(batch as unknown as StructuredCloneable)
@@ -130,7 +153,7 @@ export class DefaultCollectionDownloader implements CollectionDownloader {
           result.collectionDownloaderWorkerError.message,
         )
       } else {
-        Object.assign(collectionCache, result)
+        Object.assign(collectionCache.files, result)
       }
     }
     return workerError

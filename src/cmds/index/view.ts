@@ -26,23 +26,25 @@ export const viewIndexCmd = createCommand(
     const manager = new DefaultIndexManager(config.indexes)
 
     let count = 0
-    for await (const record of manager.records()) {
-      switch (args.flags.format) {
-        case 'json':
-          if (count === 0) {
-            process.stdout.write('[')
-          } else {
-            process.stdout.write(', ')
-          }
-          process.stdout.write(JSON.stringify(record, null, 2))
-          count++
-          break
-        case 'yaml':
-          console.log(Bun.YAML.stringify([record], null, 2))
-          break
-        default:
-          printRecord(record)
-          break
+    for await (const index of manager.indexes()) {
+      for await (const record of manager.records(index)) {
+        switch (args.flags.format) {
+          case 'json':
+            if (count === 0) {
+              process.stdout.write('[')
+            } else {
+              process.stdout.write(', ')
+            }
+            process.stdout.write(JSON.stringify(record, null, 2))
+            count++
+            break
+          case 'yaml':
+            console.log(Bun.YAML.stringify([record], null, 2))
+            break
+          default:
+            printRecord(record)
+            break
+        }
       }
     }
     if (count > 0 && args.flags.format === 'json') {

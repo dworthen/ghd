@@ -11,13 +11,27 @@ import {
   ValidationError,
 } from '../errors'
 import { CollectionCachePath } from '../paths'
-import { isStringRecord } from '../utils/parsing'
+import { isPlainRecord, isStringRecord } from '../utils/parsing'
 
-// Represents repoDirectory -> Bun.hash.xxHash64(description), converted to hex.
-export type CollectionCache = Record<string, string>
+// File hashes are keyed by repo directory; index timestamps record successful pulls.
+export type CollectionCache = {
+  indexes: Record<string, number>
+  files: Record<string, string>
+}
 
 export function isCollectionCache(value: unknown): value is CollectionCache {
-  return isStringRecord(value)
+  return (
+    isPlainRecord(value) &&
+    isNumberRecord(value.indexes) &&
+    isStringRecord(value.files)
+  )
+}
+
+function isNumberRecord(value: unknown): value is Record<string, number> {
+  return (
+    isPlainRecord(value) &&
+    Object.values(value).every((item) => typeof item === 'number')
+  )
 }
 
 export class CollectionCacheService
@@ -35,13 +49,13 @@ export class CollectionCacheService
 
     const file = Bun.file(this.#collectionCachePath)
     if (!(await file.exists())) {
-      this.#collectionCache = {}
+      this.#collectionCache = { indexes: {}, files: {} }
       return this.#collectionCache
     }
 
     const contents = await file.text()
     if (contents.trim() === '') {
-      this.#collectionCache = {}
+      this.#collectionCache = { indexes: {}, files: {} }
       return this.#collectionCache
     }
 
@@ -73,7 +87,7 @@ export class CollectionCacheService
     }
     if (!isCollectionCache(this.#collectionCache)) {
       throw new ValidationError(
-        `Collection cache at ${this.#collectionCachePath} must be a YAML mapping of strings to strings.`,
+        `Collection cache at ${this.#collectionCachePath} must contain YAML mappings named indexes (numbers) and files (strings).`,
       )
     }
   }

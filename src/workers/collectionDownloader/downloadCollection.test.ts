@@ -42,7 +42,7 @@ describe('downloadCollection', () => {
   test('writes the literal example to its collection and repo hash path character-for-character', async () => {
     const collectionDirectory = await temporaryCollectionDirectory()
     const result = await downloadCollection([record()], {
-      collectionCache: {},
+      collectionCache: { indexes: {}, files: {} },
       collectionDirectory,
     })
     const path = join(
@@ -75,7 +75,7 @@ describe('downloadCollection', () => {
       }),
     ]
     const result = await downloadCollection(records, {
-      collectionCache: {},
+      collectionCache: { indexes: {}, files: {} },
       collectionDirectory,
     })
 
@@ -104,7 +104,10 @@ describe('downloadCollection', () => {
     const descriptionHash = hashStringToHex(item.description)
 
     const result = await downloadCollection([item], {
-      collectionCache: { [item.repoDirectory]: descriptionHash },
+      collectionCache: {
+        indexes: {},
+        files: { [item.repoDirectory]: descriptionHash },
+      },
       collectionDirectory,
     })
 
@@ -125,7 +128,10 @@ describe('downloadCollection', () => {
     await Bun.write(path, 'stale contents')
 
     const result = await downloadCollection([item], {
-      collectionCache: { [item.repoDirectory]: 'stale-hash' },
+      collectionCache: {
+        indexes: {},
+        files: { [item.repoDirectory]: 'stale-hash' },
+      },
       collectionDirectory,
     })
 
@@ -146,7 +152,7 @@ describe('downloadCollection', () => {
     } as Index[number]
     await expect(
       downloadCollection([minimal], {
-        collectionCache: {},
+        collectionCache: { indexes: {}, files: {} },
         collectionDirectory,
       }),
     ).resolves.toEqual({

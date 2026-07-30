@@ -12,7 +12,7 @@ export type CollectionDownloaderWorkerError = {
 }
 
 export type CollectionDownloaderWorkerResult =
-  | CollectionCache
+  | CollectionCache['files']
   | CollectionDownloaderWorkerError
 
 export function isCollectionDownloaderWorkerError(

@@ -221,8 +221,10 @@ export async function add(
         ConfiguredIndexReader,
       )
       let matchingRecord: IndexRecord | undefined
-      for await (const record of manager.records()) {
-        if (record.repoDirectory === source.slug) matchingRecord = record
+      for await (const index of manager.indexes()) {
+        for await (const record of manager.records(index)) {
+          if (record.repoDirectory === source.slug) matchingRecord = record
+        }
       }
       indexedRecord = matchingRecord
       indexLoaded = true
