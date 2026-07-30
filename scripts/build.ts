@@ -15,7 +15,10 @@ const builds: Record<string, string> = {
 async function buildTarget(target: string, outFile: string): Promise<void> {
   console.log(`Building for target: ${target}...`)
   await Bun.build({
-    entrypoints: ['./src/index.ts'],
+    entrypoints: [
+      './src/index.ts',
+      './src/workers/collectionDownloader/collectionDownloader.worker.ts',
+    ],
     define: {
       IS_BINARY: JSON.stringify(true),
     },

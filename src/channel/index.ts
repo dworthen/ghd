@@ -13,6 +13,7 @@ export type StructuredCloneablePrimitive =
   | Blob
   | File
   | ArrayBuffer
+  | SharedArrayBuffer
   | DataView
   | Int8Array
   | Uint8Array
