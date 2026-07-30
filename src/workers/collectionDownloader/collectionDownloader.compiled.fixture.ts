@@ -17,6 +17,9 @@ const manager: IndexManager = {
   async *indexes() {
     yield 'fixture/index.yaml'
   },
+  async hash() {
+    return 'compiled-index-hash'
+  },
   async *records(index) {
     if (index === 'fixture/index.yaml') yield record
   },

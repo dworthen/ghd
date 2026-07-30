@@ -5,6 +5,7 @@ import {
   ValidationError,
 } from '../errors'
 import { getGithubToken } from '../utils/github-token'
+import { hashStringToHex } from '../utils/hash'
 
 export { GithubRequestError, IndexNotFoundError } from '../errors'
 
@@ -78,9 +79,9 @@ export function parseIndex(contents: string, index: string): Index {
   return parsed
 }
 
-export class IndexReader implements DataReader<Index>, DataValidator {
+export class IndexReader implements DataReader<string>, DataValidator {
   #indexSlug: string
-  #index: Index | null = null
+  #contents: string | null = null
   #getGithubToken: (repo: string) => Promise<string>
   #fetch: Fetch
 
@@ -94,9 +95,8 @@ export class IndexReader implements DataReader<Index>, DataValidator {
     this.#fetch = request
   }
 
-  async read(): Promise<Index> {
-    if (this.#index !== null) return this.#index
-
+  async read(): Promise<string> {
+    if (this.#contents !== null) return this.#contents
     const location = parseIndexLocation(this.#indexSlug)
     let token: string
     try {
@@ -150,9 +150,8 @@ export class IndexReader implements DataReader<Index>, DataValidator {
       )
     }
 
-    let contents: string
     try {
-      contents = await response.text()
+      this.#contents = await response.text()
     } catch (error) {
       const detail = error instanceof Error ? `: ${error.message}` : ''
       throw new GithubRequestError(
@@ -161,47 +160,36 @@ export class IndexReader implements DataReader<Index>, DataValidator {
     }
 
     try {
-      this.#index = Bun.YAML.parse(contents) as Index
+      this.validate()
     } catch (error) {
-      const detail = error instanceof Error ? `: ${error.message}` : ''
-      throw new ValidationError(
-        `Index ${this.#indexSlug} is not valid YAML${detail}`,
-      )
-    }
-
-    try {
-      await this.validate()
-    } catch (error) {
-      this.#index = null
+      this.#contents = null
       throw error
     }
-    return this.#index
+    return this.#contents
   }
 
   validate(): void {
-    if (this.#index === null) {
+    if (this.#contents === null) {
       throw new ValidationError(`Index ${this.#indexSlug} has not been loaded.`)
     }
-    if (!isIndex(this.#index)) {
-      throw new ValidationError(
-        `Index ${this.#indexSlug} does not have the expected structure.`,
-      )
-    }
+    parseIndex(this.#contents, this.#indexSlug)
   }
 }
 
 export interface IndexManager {
   indexes(): AsyncIterableIterator<string>
+  hash(index: string): Promise<string>
   records(index: string): AsyncIterableIterator<IndexRecord>
 }
 
 export class DefaultIndexManager implements IndexManager {
   #indexSlugs: string[]
-  #indexReaderConstructor: Constructor<DataReader<Index>>
+  #indexReaderConstructor: Constructor<DataReader<string>>
+  #indexReaders = new Map<string, DataReader<string>>()
 
   constructor(
     indexes: string[],
-    cstor: Constructor<DataReader<Index>> = IndexReader,
+    cstor: Constructor<DataReader<string>> = IndexReader,
   ) {
     this.#indexSlugs = indexes
     this.#indexReaderConstructor = cstor
@@ -211,9 +199,21 @@ export class DefaultIndexManager implements IndexManager {
     yield* this.#indexSlugs
   }
 
+  async hash(index: string): Promise<string> {
+    return hashStringToHex(await this.#reader(index).read())
+  }
+
   async *records(index: string): AsyncIterableIterator<IndexRecord> {
-    const records = await new this.#indexReaderConstructor(index).read()
-    yield* records
+    yield* parseIndex(await this.#reader(index).read(), index)
+  }
+
+  #reader(index: string): DataReader<string> {
+    let reader = this.#indexReaders.get(index)
+    if (reader === undefined) {
+      reader = new this.#indexReaderConstructor(index)
+      this.#indexReaders.set(index, reader)
+    }
+    return reader
   }
 }
 
@@ -221,11 +221,12 @@ export async function loadRemoteIndex(
   index: string,
   dependencies: LoadRemoteIndexDependencies = {},
 ): Promise<Index> {
-  return new IndexReader(
+  const contents = await new IndexReader(
     index,
     dependencies.getGithubToken,
     dependencies.fetch,
   ).read()
+  return parseIndex(contents, index)
 }
 
 function isIndexRecord(value: unknown): value is IndexRecord {

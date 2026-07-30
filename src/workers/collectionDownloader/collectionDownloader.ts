@@ -21,8 +21,6 @@ export const collectionDownloaderConcurrency = Math.min(
   4,
 )
 
-export const indexCacheDuration = 24 * 60 * 60 * 1_000
-
 export interface CollectionDownloader {
   download(): Promise<void>
 }
@@ -48,20 +46,15 @@ export class DefaultCollectionDownloader implements CollectionDownloader {
   async download(): Promise<void> {
     const collectionCache = await this.#collectionCacheService.read()
     for await (const index of this.#indexManager.indexes()) {
-      const lastDownloaded = collectionCache.indexes[index]
-      if (
-        lastDownloaded !== undefined &&
-        Date.now() - lastDownloaded < indexCacheDuration
-      ) {
-        continue
-      }
+      const indexHash = await this.#indexManager.hash(index)
+      if (collectionCache.indexes[index] === indexHash) continue
 
       if (this.#useWebWorkers) {
         await this.#downloadWithWorkers(index, collectionCache)
       } else {
         await this.#downloadOnMainThread(index, collectionCache)
       }
-      collectionCache.indexes[index] = Date.now()
+      collectionCache.indexes[index] = indexHash
       await this.#collectionCacheService.save()
     }
     await this.#collectionCacheService.save()

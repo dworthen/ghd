@@ -4,6 +4,7 @@ import {
   IndexNotFoundError,
   ValidationError,
 } from '../errors'
+import { hashStringToHex } from '../utils/hash'
 import {
   DefaultIndexManager,
   type Index,
@@ -99,7 +100,7 @@ describe('Index validation', () => {
 })
 
 describe('IndexReader', () => {
-  test('gets a token, downloads, validates, and caches the same list identity', async () => {
+  test('gets a token, downloads, validates, and caches the exact raw contents', async () => {
     const repositories: string[] = []
     const requests: Array<{ url: string; init?: RequestInit }> = []
     const request = async (
@@ -125,8 +126,9 @@ describe('IndexReader', () => {
     const second = await reader.read()
 
     expect(first).toBe(second)
-    expect(Array.isArray(first)).toBe(true)
-    expect(first[0]?.repoDirectory).toBe('octo-org/project/packages/app')
+    expect(first).toBe(
+      `- repoDirectory: octo-org/project/packages/app\n  collection: app\n  description: Application package\n  include: ['**/*.ts']\n  exclude: ['**/*.test.ts']\n  outputDirectory: packages/app\n`,
+    )
     expect(repositories).toEqual(['octo-org/indexes'])
     expect(requests).toEqual([
       {
@@ -195,7 +197,7 @@ describe('IndexReader', () => {
 })
 
 describe('DefaultIndexManager', () => {
-  test('maps every slug and yields all records in index and record order, preserving duplicates', async () => {
+  test('hashes exact contents and yields records in index order while preserving duplicate slugs', async () => {
     const constructed: string[] = []
     const read: string[] = []
     class Reader {
@@ -206,12 +208,12 @@ describe('DefaultIndexManager', () => {
         constructed.push(slug)
       }
 
-      async read(): Promise<Index> {
+      async read(): Promise<string> {
         read.push(this.#slug)
-        return [
+        return JSON.stringify([
           record(`${this.#slug}/first`, this.#slug),
           record(`${this.#slug}/second`, this.#slug),
-        ]
+        ])
       }
     }
     const slugs = [
@@ -225,12 +227,30 @@ describe('DefaultIndexManager', () => {
 
     for await (const index of manager.indexes()) {
       indexes.push(index)
+      expect(await manager.hash(index)).toBe(
+        hashStringToHex(
+          JSON.stringify([
+            record(`${index}/first`, index),
+            record(`${index}/second`, index),
+          ]),
+        ),
+      )
       for await (const item of manager.records(index)) records.push(item)
     }
 
     expect(indexes).toEqual(slugs)
-    expect(constructed).toEqual(slugs)
-    expect(read).toEqual(slugs)
+    expect(constructed).toEqual([
+      'owner/one/index.yaml',
+      'owner/two/index.yaml',
+    ])
+    expect(read).toEqual([
+      'owner/one/index.yaml',
+      'owner/one/index.yaml',
+      'owner/one/index.yaml',
+      'owner/one/index.yaml',
+      'owner/two/index.yaml',
+      'owner/two/index.yaml',
+    ])
     expect(records.map((item) => item.repoDirectory)).toEqual([
       'owner/one/index.yaml/first',
       'owner/one/index.yaml/second',

@@ -65,6 +65,10 @@ class Records implements IndexManager {
     yield 'benchmark/index.yaml'
   }
 
+  async hash(): Promise<string> {
+    return 'benchmark-index-hash'
+  }
+
   async *records(): AsyncIterableIterator<IndexRecord> {
     yield* this.#records
   }

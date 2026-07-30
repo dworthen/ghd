@@ -6,11 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html),
 and is managed by [Changelog](https://github.com/dworthen/changelog).
 
-## Unreleased - 2026-07-28
+## Unreleased - 2026-07-30
 
 ### Add
 
 3f5e91e: Add concurrency pattern with WorkerPool and Channel.
+unknown: Download index entries on index add and add caching layer.
 
 ### Fix
 
@@ -18,7 +19,7 @@ and is managed by [Changelog](https://github.com/dworthen/changelog).
 2db4a7d: BC: Refactor Index type to be a list instead of a record. Add support for streaming over entries. Refactor cli commands to use new types
 4153aed: BC: Rename ghd indexes commands to ghd index.
 90121c1: BC: Change the IndexRecord type.
-unknown: Update ghd index view formatting.
+5122459: Update ghd index view formatting.
 
 ## 0.2.0 - 2026-07-27
 

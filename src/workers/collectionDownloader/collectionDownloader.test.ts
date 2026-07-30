@@ -11,7 +11,6 @@ import { hashStringToHex } from '../../utils/hash'
 import {
   collectionDownloaderConcurrency,
   DefaultCollectionDownloader,
-  indexCacheDuration,
 } from './collectionDownloader'
 
 const temporaryDirectories: string[] = []
@@ -62,13 +61,19 @@ function record(id: number): IndexRecord {
 
 class Records implements IndexManager {
   #records: IndexRecord[]
+  #hash: string
 
-  constructor(records: IndexRecord[]) {
+  constructor(records: IndexRecord[], hash = 'current-index-hash') {
     this.#records = records
+    this.#hash = hash
   }
 
   async *indexes(): AsyncIterableIterator<string> {
     yield indexSlug
+  }
+
+  async hash(): Promise<string> {
+    return this.#hash
   }
 
   async *records(index: string): AsyncIterableIterator<IndexRecord> {
@@ -127,7 +132,7 @@ describe('DefaultCollectionDownloader', () => {
           [unchanged.repoDirectory]: hashStringToHex(unchanged.description),
           [changed.repoDirectory]: hashStringToHex(changed.description),
         })
-        expect(saved.indexes[indexSlug]).toBeNumber()
+        expect(saved.indexes[indexSlug]).toBe('current-index-hash')
         expect(
           await Bun.file(
             join(
@@ -140,26 +145,30 @@ describe('DefaultCollectionDownloader', () => {
         expect(await Bun.file(unchangedPath).text()).toBe('unchanged sentinel')
       })
 
-      test('skips indexes pulled within the last 24 hours without reading records', async () => {
+      test('skips duplicate indexes whose content hash is unchanged without reading records', async () => {
         const collectionDirectory = await temporaryCollectionDirectory()
-        const lastDownloaded = Date.now() - indexCacheDuration + 1_000
         const existingCache: CollectionCache = {
-          indexes: { [indexSlug]: lastDownloaded },
+          indexes: { [indexSlug]: 'unchanged-index-hash' },
           files: { preserved: 'hash' },
         }
         await Bun.write(
           cachePathFor(collectionDirectory),
           Bun.YAML.stringify(existingCache, null, 2),
         )
+        let hashReads = 0
         let recordReads = 0
         const manager: IndexManager = {
           async *indexes() {
             yield indexSlug
             yield indexSlug
           },
+          async hash() {
+            hashReads++
+            return 'unchanged-index-hash'
+          },
           records() {
             recordReads++
-            throw new Error('fresh index records must not be read')
+            throw new Error('unchanged index records must not be read')
           },
         }
 
@@ -168,25 +177,24 @@ describe('DefaultCollectionDownloader', () => {
         const saved = Bun.YAML.parse(
           await Bun.file(cachePathFor(collectionDirectory)).text(),
         ) as CollectionCache
+        expect(hashReads).toBe(2)
         expect(recordReads).toBe(0)
         expect(saved).toEqual(existingCache)
       })
 
-      test('downloads an index at least 24 hours old and refreshes its timestamp', async () => {
+      test('downloads an index whose content hash changed and saves its new hash', async () => {
         const collectionDirectory = await temporaryCollectionDirectory()
-        const startedAt = Date.now()
-        const staleTimestamp = startedAt - indexCacheDuration
         await Bun.write(
           cachePathFor(collectionDirectory),
           Bun.YAML.stringify(
-            { indexes: { [indexSlug]: staleTimestamp }, files: {} },
+            { indexes: { [indexSlug]: 'stale-index-hash' }, files: {} },
             null,
             2,
           ),
         )
 
         await downloader(
-          new Records([record(1)]),
+          new Records([record(1)], 'new-index-hash'),
           collectionDirectory,
           useWebWorkers,
         ).download()
@@ -194,7 +202,7 @@ describe('DefaultCollectionDownloader', () => {
         const saved = Bun.YAML.parse(
           await Bun.file(cachePathFor(collectionDirectory)).text(),
         ) as CollectionCache
-        expect(saved.indexes[indexSlug]).toBeGreaterThanOrEqual(startedAt)
+        expect(saved.indexes[indexSlug]).toBe('new-index-hash')
         expect(saved.files[record(1).repoDirectory]).toBe(
           hashStringToHex(record(1).description),
         )
@@ -215,6 +223,9 @@ describe('DefaultCollectionDownloader', () => {
         const manager: IndexManager = {
           async *indexes() {
             yield indexSlug
+          },
+          async hash() {
+            return 'batch-index-hash'
           },
           async *records() {
             yield* firstBatch
@@ -266,7 +277,7 @@ describe('DefaultCollectionDownloader', () => {
         ) as CollectionCache
         expect(saved.files).toEqual(existingCache.files)
         expect(Object.keys(saved.files)).toHaveLength(513)
-        expect(saved.indexes[indexSlug]).toBeNumber()
+        expect(saved.indexes[indexSlug]).toBe('current-index-hash')
       })
 
       test('writes every collection for repeated repo directories', async () => {
@@ -336,12 +347,12 @@ describe('DefaultCollectionDownloader', () => {
         expect(await Bun.file(path).text()).toBe('sentinel')
       })
 
-      test('does not refresh the timestamp or save when index iteration fails', async () => {
+      test('does not update the index hash or save when index iteration fails', async () => {
         const collectionDirectory = await temporaryCollectionDirectory()
-        const staleTimestamp = Date.now() - indexCacheDuration
+        const staleHash = 'stale-index-hash'
         const originalContents = Bun.YAML.stringify(
           {
-            indexes: { [indexSlug]: staleTimestamp },
+            indexes: { [indexSlug]: staleHash },
             files: { preserved: 'hash' },
           },
           null,
@@ -351,6 +362,9 @@ describe('DefaultCollectionDownloader', () => {
         const manager: IndexManager = {
           async *indexes() {
             yield indexSlug
+          },
+          async hash() {
+            return 'new-index-hash'
           },
           async *records() {
             yield record(1)
@@ -370,12 +384,12 @@ describe('DefaultCollectionDownloader', () => {
         const collectionDirectory = await temporaryCollectionDirectory()
         const firstIndex = 'owner/index/first.yaml'
         const failingIndex = 'owner/index/failing.yaml'
-        const staleTimestamp = Date.now() - indexCacheDuration
+        const staleHash = 'stale-index-hash'
         await Bun.write(
           cachePathFor(collectionDirectory),
           Bun.YAML.stringify(
             {
-              indexes: { [failingIndex]: staleTimestamp },
+              indexes: { [failingIndex]: staleHash },
               files: { preserved: 'hash' },
             },
             null,
@@ -386,6 +400,11 @@ describe('DefaultCollectionDownloader', () => {
           async *indexes() {
             yield firstIndex
             yield failingIndex
+          },
+          async hash(index) {
+            return index === firstIndex
+              ? 'first-index-hash'
+              : 'new-failing-hash'
           },
           async *records(index) {
             if (index === firstIndex) {
@@ -403,8 +422,8 @@ describe('DefaultCollectionDownloader', () => {
         const saved = Bun.YAML.parse(
           await Bun.file(cachePathFor(collectionDirectory)).text(),
         ) as CollectionCache
-        expect(saved.indexes[firstIndex]).toBeNumber()
-        expect(saved.indexes[failingIndex]).toBe(staleTimestamp)
+        expect(saved.indexes[firstIndex]).toBe('first-index-hash')
+        expect(saved.indexes[failingIndex]).toBe(staleHash)
         expect(saved.files).toEqual({
           preserved: 'hash',
           [record(1).repoDirectory]: hashStringToHex(record(1).description),
@@ -441,7 +460,7 @@ describe('DefaultCollectionDownloader', () => {
           await Bun.file(cachePathFor(collectionDirectory)).text(),
         ) as CollectionCache
         expect(saved.files).toEqual({})
-        expect(saved.indexes[indexSlug]).toBeNumber()
+        expect(saved.indexes[indexSlug]).toBe('current-index-hash')
       })
     })
   }

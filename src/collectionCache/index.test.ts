@@ -30,17 +30,16 @@ afterEach(async () => {
 })
 
 describe('CollectionCache validation', () => {
-  test('accepts indexes with numeric timestamps and files with string hashes', () => {
+  test('accepts index and file mappings with string hashes', () => {
     expect(
-      isCollectionCache({ indexes: { index: 123 }, files: { repo: 'hash' } }),
+      isCollectionCache({ indexes: { index: '123' }, files: { repo: 'hash' } }),
     ).toBe(true)
     expect(isCollectionCache({ indexes: {}, files: {} })).toBe(true)
     expect(isCollectionCache({ indexes: [], files: {} })).toBe(false)
-    expect(isCollectionCache({ indexes: { index: '123' }, files: {} })).toBe(
+    expect(isCollectionCache({ indexes: { index: 123 }, files: {} })).toBe(
       false,
     )
     expect(isCollectionCache({ indexes: {}, files: { repo: 1 } })).toBe(false)
-    expect(isCollectionCache({ indexes: {}, files: {} })).toBe(true)
     expect(isCollectionCache(null)).toBe(false)
   })
 
@@ -68,7 +67,7 @@ describe('CollectionCacheService read and save', () => {
     const path = await temporaryCachePath()
     await Bun.write(
       path,
-      "indexes:\n  ' owner/index ': 123\nfiles:\n  ' owner/repo ': 00Ab\n  owner/other: deadbeef\n",
+      "indexes:\n  ' owner/index ': 123hash\nfiles:\n  ' owner/repo ': 00Ab\n  owner/other: deadbeef\n",
     )
     const service = new CollectionCacheService(path)
     const first = await service.read()
@@ -76,7 +75,7 @@ describe('CollectionCacheService read and save', () => {
     const second = await service.read()
     expect(second).toBe(first)
     expect(second).toEqual({
-      indexes: { ' owner/index ': 123 },
+      indexes: { ' owner/index ': '123hash' },
       files: {
         ' owner/repo ': '00Ab',
         'owner/other': 'deadbeef',
@@ -91,7 +90,7 @@ describe('CollectionCacheService read and save', () => {
   test.each([
     '- item\n',
     'indexes: []\nfiles: {}\n',
-    'indexes:\n  index: string\nfiles: {}\n',
+    'indexes:\n  index: 42\nfiles: {}\n',
     'indexes: {}\nfiles:\n  repo: 42\n',
     'indexes: {}\n',
   ])('rejects an invalid cache mapping %p', async (contents) => {

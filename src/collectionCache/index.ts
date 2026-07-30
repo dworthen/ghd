@@ -13,24 +13,17 @@ import {
 import { CollectionCachePath } from '../paths'
 import { isPlainRecord, isStringRecord } from '../utils/parsing'
 
-// File hashes are keyed by repo directory; index timestamps record successful pulls.
+// Index and file hashes are keyed by their index slug and repo directory.
 export type CollectionCache = {
-  indexes: Record<string, number>
+  indexes: Record<string, string>
   files: Record<string, string>
 }
 
 export function isCollectionCache(value: unknown): value is CollectionCache {
   return (
     isPlainRecord(value) &&
-    isNumberRecord(value.indexes) &&
+    isStringRecord(value.indexes) &&
     isStringRecord(value.files)
-  )
-}
-
-function isNumberRecord(value: unknown): value is Record<string, number> {
-  return (
-    isPlainRecord(value) &&
-    Object.values(value).every((item) => typeof item === 'number')
   )
 }
 
@@ -87,7 +80,7 @@ export class CollectionCacheService
     }
     if (!isCollectionCache(this.#collectionCache)) {
       throw new ValidationError(
-        `Collection cache at ${this.#collectionCachePath} must contain YAML mappings named indexes (numbers) and files (strings).`,
+        `Collection cache at ${this.#collectionCachePath} must contain YAML mappings named indexes (strings) and files (strings).`,
       )
     }
   }

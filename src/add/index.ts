@@ -1,11 +1,9 @@
 import { lstat, mkdir, rm, unlink } from 'node:fs/promises'
 import { dirname, join, relative, resolve } from 'node:path'
 import { Glob } from 'bun'
-import { type DataReader } from '../DataManager'
-import { IndexNotFoundError } from '../errors'
 import {
-  DefaultIndexManager,
   type Index,
+  IndexNotFoundError,
   type IndexRecord,
   type LoadRemoteIndexDependencies,
   loadRemoteIndex,
@@ -202,27 +200,13 @@ export async function add(
       const selectedIndexes =
         options.index ?? (await new UserConfig(globalConfigPath).read()).indexes
       const loadIndex = dependencies.loadRemoteIndex ?? loadRemoteIndex
-      class ConfiguredIndexReader implements DataReader<Index> {
-        #index: string
-
-        constructor(indexSlug: string) {
-          this.#index = indexSlug
-        }
-
-        read(): Promise<Index> {
-          return loadIndex(this.#index, {
-            fetch: request,
-            getGithubToken: findToken,
-          })
-        }
-      }
-      const manager = new DefaultIndexManager(
-        selectedIndexes,
-        ConfiguredIndexReader,
-      )
       let matchingRecord: IndexRecord | undefined
-      for await (const index of manager.indexes()) {
-        for await (const record of manager.records(index)) {
+      for (const index of selectedIndexes) {
+        const records = await loadIndex(index, {
+          fetch: request,
+          getGithubToken: findToken,
+        })
+        for (const record of records) {
           if (record.repoDirectory === source.slug) matchingRecord = record
         }
       }
