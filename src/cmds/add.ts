@@ -25,7 +25,7 @@ const command = createCommand(
       },
       index: {
         type: 'string',
-        description: 'Configured index name to load (repeatable)',
+        description: 'Index location to load (repeatable)',
         isMultiple: true,
       },
       config: {
@@ -85,7 +85,7 @@ const help = `
     --output-directory, -o    Directory where matching files are downloaded
     --include, -i             File or glob to include (repeatable)
     --exclude, -e             File or glob to exclude (repeatable)
-    --index                   Configured index name to load (repeatable)
+    --index                   Index location to load (repeatable)
     --config, -c              Local configuration path relative to the current directory [ghd.config.yaml]
     --force, -f               Overwrite downloaded files in an existing target directory
 `

@@ -1,0 +1,3 @@
+timestamp: 1785273861412
+type: Fix
+description: "BC: Refactor Index type to be a list instead of a record. Add support for streaming over entries. Refactor cli commands to use new types"

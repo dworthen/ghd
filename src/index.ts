@@ -2,7 +2,7 @@ import { createCommand } from '@d-dev/roar'
 import pkg from '../package.json'
 import { addCmd } from './cmds/add'
 import { helloCmd } from './cmds/hello'
-import { indexesCmd } from './cmds/indexes'
+import { indexCmd } from './cmds/index'
 import { installCmd } from './cmds/install'
 import { upgradeCmd } from './cmds/upgrade'
 
@@ -16,7 +16,7 @@ const cli = createCommand({
 cli.addCommand('add', addCmd)
 cli.addCommand('hello', helloCmd)
 cli.addCommand('install', installCmd)
-cli.addCommand('indexes', indexesCmd)
+cli.addCommand('index', indexCmd)
 cli.addCommand('upgrade', upgradeCmd)
 
 try {

@@ -109,30 +109,23 @@ An index provides reusable include, exclude, and output-directory defaults. It i
 
 ```yaml
 # OWNER/INDEX_REPO/path/to/ghd.templates.yaml
-repos:
-  OWNER/REPO/path/to/templates:
-    metadata: # Optional - can include any additional data
-      type: templates
-      languages:
-        - typescript
-        - json
-      stable: true
-    description: Shared TypeScript and JSON templates
-    include:
-      - "**/*.ts"
-      - "**/*.json"
-    exclude:
-      - "**/*.test.ts"
-    outputDirectory: generated/templates
+- repoDirectory: OWNER/REPO/path/to/templates
+  collection: templates
+  description: Shared TypeScript and JSON templates
+  include:
+    - "**/*.ts"
+    - "**/*.json"
+  exclude:
+    - "**/*.test.ts"
+  outputDirectory: generated/templates
 ```
 
-Metadata values must be primitives or arrays of primitives. Nested metadata
-objects are not supported.
+Each record's collection identifies the kind of reusable files it contains.
 
-Configure and validate one or more named global indexes:
+Configure a global index:
 
 ```sh
-ghd indexes set templates OWNER/INDEX_REPO/path/to/ghd.templates.yaml
+ghd index add OWNER/INDEX_REPO/path/to/ghd.templates.yaml
 ```
 
 Now you can run
@@ -147,15 +140,13 @@ Without specifying include, exclude or output directory. Default values can be o
 ghd add OWNER/REPO/path/to/templates -o generated/my-templates
 ```
 
-Manage and view the configured indexes with:
+Manage the configured indexes and view their records with:
 
 ```sh
-ghd indexes get templates
-ghd indexes list
-ghd indexes list --format yaml
-ghd indexes view
-ghd indexes view templates docs
-ghd indexes view templates --format yaml
+ghd index list
+ghd index list --format yaml
+ghd index view
+ghd index remove OWNER/INDEX_REPO/path/to/ghd.templates.yaml
 ```
 
 ## Command reference
@@ -165,17 +156,17 @@ ghd add <OWNER/REPO[/path][@COMMIT_SHA]>
   --output-directory, -o <path>  Directory where files are downloaded
   --include, -i <glob>           File or glob to include (repeatable)
   --exclude, -e <glob>           File or glob to exclude (repeatable)
-  --index <name>                 Configured index name to load (repeatable)
+  --index <location>             Index location to load (repeatable)
   --config, -c <path>            Local config to update (default: ghd.config.yaml)
   --force, -f                    Write into an existing target directory
 
 ghd install [local-config=ghd.config.yaml]
   --force, -f             Download entries whose target directories exist
 
-ghd indexes get <name>                   Print a configured index location
-ghd indexes list [--format json|yaml]    Print configured indexes
-ghd indexes set <name> <location>        Validate and configure a named index
-ghd indexes view [names...] [--format json|yaml]
+ghd index add <index>                    Add an index
+ghd index list [--format json|yaml]      Print configured indexes
+ghd index remove <location>              Remove a configured index
+ghd index view                           Print configured index records
 
 ghd upgrade [--tag <tag>] [--check]
 ghd --version

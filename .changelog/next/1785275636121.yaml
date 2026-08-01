@@ -1,0 +1,3 @@
+timestamp: 1785275636121
+type: Fix
+description: "BC: Rename ghd indexes commands to ghd index."

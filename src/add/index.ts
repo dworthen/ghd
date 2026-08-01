@@ -1,16 +1,16 @@
 import { lstat, mkdir, rm, unlink } from 'node:fs/promises'
 import { dirname, join, relative, resolve } from 'node:path'
 import { Glob } from 'bun'
-import { defaultConfigPath, loadConfigDocument } from '../config'
 import {
   type Index,
   IndexNotFoundError,
   type IndexRecord,
   type LoadRemoteIndexDependencies,
-  loadIndexes,
   loadRemoteIndex,
-} from '../indexes'
+} from '../index/index'
 import { type LocalConfig } from '../install/local-config'
+import { UserConfigPath } from '../paths'
+import { UserConfig } from '../userConfig'
 import { getGithubToken } from '../utils/github-token'
 
 const API_ROOT = 'https://api.github.com'
@@ -169,9 +169,9 @@ export async function add(
 
   const request = dependencies.fetch ?? globalThis.fetch
   const findToken = dependencies.getGithubToken ?? getGithubToken
-  const getIndex = dependencies.loadRemoteIndex ?? loadRemoteIndex
 
-  let index: Index | undefined
+  let indexedRecord: IndexRecord | undefined
+  let indexLoaded = false
   const hasExplicitInclude =
     options.include?.some((pattern) => pattern !== '') === true
   const canRunWithoutIndex =
@@ -189,37 +189,46 @@ export async function add(
       return { status: 'skipped', targetDirectory }
     }
   }
-  const globalConfigPath = dependencies.globalConfigPath ?? defaultConfigPath()
+  const globalConfigPath = dependencies.globalConfigPath ?? UserConfigPath
   const shouldLoadIndexes =
     options.index !== undefined || options.loadGlobalIndex !== false
-  if (shouldLoadIndexes) {
-    const globalConfig = await loadConfigDocument(globalConfigPath)
-    if (globalConfig !== undefined || options.index !== undefined) {
-      try {
-        index = await loadIndexes(options.index, {
-          configPath: globalConfigPath,
+  if (
+    shouldLoadIndexes &&
+    ((await Bun.file(globalConfigPath).exists()) || options.index !== undefined)
+  ) {
+    try {
+      const selectedIndexes =
+        options.index ?? (await new UserConfig(globalConfigPath).read()).indexes
+      const loadIndex = dependencies.loadRemoteIndex ?? loadRemoteIndex
+      let matchingRecord: IndexRecord | undefined
+      for (const index of selectedIndexes) {
+        const records = await loadIndex(index, {
           fetch: request,
           getGithubToken: findToken,
-          loadIndex: getIndex,
         })
-      } catch (error) {
-        if (
-          !canRunWithoutIndex ||
-          (error instanceof Error &&
-            !error.message.startsWith('No indexes are configured') &&
-            !(error instanceof IndexNotFoundError))
-        ) {
-          throw error
+        for (const record of records) {
+          if (record.repoDirectory === source.slug) matchingRecord = record
         }
+      }
+      indexedRecord = matchingRecord
+      indexLoaded = true
+    } catch (error) {
+      if (
+        !canRunWithoutIndex ||
+        (error instanceof Error &&
+          !error.message.startsWith('No indexes are configured') &&
+          !(error instanceof IndexNotFoundError))
+      ) {
+        throw error
       }
     }
   }
 
   const resolved = resolveAddOptions(
     source.slug,
-    index?.repos[source.slug],
+    indexedRecord,
     { include: options.include, exclude: options.exclude, outputDirectory },
-    index !== undefined,
+    indexLoaded,
   )
   const { include, exclude } = resolved
   outputDirectory = resolved.outputDirectory
