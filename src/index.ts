@@ -3,7 +3,7 @@ import pkg from '../package.json'
 import { addCmd } from './cmds/add'
 import { indexCmd } from './cmds/index'
 import { installCmd } from './cmds/install'
-import { upgradeCmd } from './cmds/upgrade'
+import { cleanupStaleUpgrade, upgradeCmd } from './cmds/upgrade'
 
 const cli = createCommand({
   usageName: 'ghd',
@@ -18,6 +18,7 @@ cli.addCommand('index', indexCmd)
 cli.addCommand('upgrade', upgradeCmd)
 
 try {
+  await cleanupStaleUpgrade()
   await cli.run(process.argv.slice(2))
 } catch (error: unknown) {
   // Graceful ctrl+c handling for inquirer

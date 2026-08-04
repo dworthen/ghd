@@ -1,0 +1,3 @@
+timestamp: 1785872635933
+type: Fix
+description: Remove old installations on startup.
