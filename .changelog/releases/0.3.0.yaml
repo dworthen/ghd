@@ -1,0 +1,46 @@
+timestamp: 1785872662898
+version: 0.3.0
+changeTypes: 
+  - Add
+  - Fix
+changes: 
+  - type: Add
+    timestamp: 1785250769792
+    sha: 3f5e91edb3ad00da1cf45aeb45c4ecddb62b059e
+    shortSha: 3f5e91e
+    description: Add concurrency pattern with WorkerPool and Channel.
+  - type: Fix
+    timestamp: 1785268964171
+    sha: 9880a965ed45b62c2b14f9a9ffc6c7e198f7bef9
+    shortSha: 9880a96
+    description: "BC: Changed UserConfig indexes to string[] from Record<string, string>"
+  - type: Fix
+    timestamp: 1785273861412
+    sha: 2db4a7dfaa1a8eecdc49bcde182e9702b1fadbde
+    shortSha: 2db4a7d
+    description: "BC: Refactor Index type to be a list instead of a record. Add support for streaming over entries. Refactor cli commands to use new types"
+  - type: Fix
+    timestamp: 1785275636121
+    sha: 4153aedb5653df1985ea7e77c73d7e494220ec2f
+    shortSha: 4153aed
+    description: "BC: Rename ghd indexes commands to ghd index."
+  - type: Fix
+    timestamp: 1785301177683
+    sha: 90121c179f298da33548936f164967cd09e1159a
+    shortSha: 90121c1
+    description: "BC: Change the IndexRecord type."
+  - type: Fix
+    timestamp: 1785301710148
+    sha: 51224598ddade2d6bd57434fc94765f28a2dca43
+    shortSha: "5122459"
+    description: Update ghd index view formatting.
+  - type: Add
+    timestamp: 1785439065410
+    sha: 6f368abbd46398ffda86661430d11df7790c92f7
+    shortSha: 6f368ab
+    description: Download index entries on index add and add caching layer.
+  - type: Fix
+    timestamp: 1785872635933
+    sha: b6cbb39eb1349a6239064b39a2068eae346f662c
+    shortSha: b6cbb39
+    description: Remove old installations on startup.

@@ -1,3 +1,0 @@
-timestamp: 1785268964171
-type: Fix
-description: "BC: Changed UserConfig indexes to string[] from Record<string, string>"

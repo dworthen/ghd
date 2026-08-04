@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html),
 and is managed by [Changelog](https://github.com/dworthen/changelog).
 
-## Unreleased - 2026-08-04
+## 0.3.0 - 2026-08-04
 
 ### Add
 
@@ -20,7 +20,7 @@ and is managed by [Changelog](https://github.com/dworthen/changelog).
 4153aed: BC: Rename ghd indexes commands to ghd index.
 90121c1: BC: Change the IndexRecord type.
 5122459: Update ghd index view formatting.
-unknown: Remove old installations on startup.
+b6cbb39: Remove old installations on startup.
 
 ## 0.2.0 - 2026-07-27
 
