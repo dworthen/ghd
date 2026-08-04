@@ -1,7 +1,5 @@
 import { createCommand } from '@d-dev/roar'
-import { DefaultIndexManager } from '../../index/index'
 import { UserConfig } from '../../userConfig'
-import { DefaultCollectionDownloader } from '../../workers/collectionDownloader/collectionDownloader'
 
 export const addIndexCmd = createCommand(
   {
