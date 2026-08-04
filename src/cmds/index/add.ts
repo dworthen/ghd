@@ -29,8 +29,8 @@ export const addIndexCmd = createCommand(
       await userConfigFile.save()
     }
 
-    const indexManager = new DefaultIndexManager([index])
-    await new DefaultCollectionDownloader(indexManager).download()
+    // const indexManager = new DefaultIndexManager([index])
+    // await new DefaultCollectionDownloader(indexManager).download()
     console.log(`Index ${index} added.`)
   },
 )
