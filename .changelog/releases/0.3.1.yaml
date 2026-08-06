@@ -1,0 +1,10 @@
+timestamp: 1786042215624
+version: 0.3.1
+changeTypes: 
+  - Fix
+changes: 
+  - type: Fix
+    timestamp: 1786042175035
+    sha: d58f34376cac2c1f6e5d5ea580a9c3130831eadb
+    shortSha: d58f343
+    description: Add NPM release.
