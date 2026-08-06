@@ -12,9 +12,24 @@ ghd add OWNER/REPO[/path/to/directory] --output-directory docs --include '**/*.m
 
 ## Install
 
-Requires the [GitHub CLI](https://cli.github.com/) authenticated with the appropriate account.
+### NPM
 
-### Windows (PowerShell)
+```sh
+# Globally
+npm install -g @d-dev/ghd
+# or as a package dep
+npm install -D @d-dev/ghd
+# or run with npx
+npx @d-dev/ghd <command>
+```
+
+### GitHub Releases
+
+May download from https://github.com/dworthen/ghd/releases or run the script for your environment.
+
+Install scripts require the [GitHub CLI](https://cli.github.com/) authenticated with the appropriate account.
+
+#### Windows (PowerShell)
 
 ```powershell
 gh api "repos/dworthen/ghd/contents/scripts/install.ps1" -H "Accept: application/vnd.github.raw+json" > install.ps1
@@ -22,7 +37,7 @@ gh api "repos/dworthen/ghd/contents/scripts/install.ps1" -H "Accept: application
 rm install.ps1
 ```
 
-### macOS, Linux, and WSL
+#### macOS, Linux, and WSL
 
 ```bash
 gh api "repos/dworthen/ghd/contents/scripts/install.sh" -H "Accept: application/vnd.github.raw+json" > install.sh
