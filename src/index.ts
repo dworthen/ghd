@@ -1,8 +1,9 @@
 import { createCommand } from '@d-dev/roar'
 import pkg from '../package.json'
-import { addCmd } from './cmds/add'
-import { indexCmd } from './cmds/index'
+import { deleteCmd } from './cmds/delete'
 import { installCmd } from './cmds/install'
+import { pullCmd } from './cmds/pull'
+import { pushCmd } from './cmds/push'
 import { cleanupStaleUpgrade, upgradeCmd } from './cmds/upgrade'
 
 const cli = createCommand({
@@ -12,9 +13,10 @@ const cli = createCommand({
   versionFlag: 'version',
 })
 
-cli.addCommand('add', addCmd)
+cli.addCommand('pull', pullCmd)
+cli.addCommand('push', pushCmd)
 cli.addCommand('install', installCmd)
-cli.addCommand('index', indexCmd)
+cli.addCommand('delete', deleteCmd)
 cli.addCommand('upgrade', upgradeCmd)
 
 try {
