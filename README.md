@@ -73,10 +73,7 @@ repos:
     exclude:
       []
     outputDirectory: testing.he `ghd.config.yaml` can be used to restore every entry at its recorded commit:
-
-```sh
-ghd install
-````
+```
 
 `ghd install` can be pointed at other ghd config files including remote files hosted on GitHub using the `gh:` prefix:
 
@@ -114,3 +111,4 @@ Pull requests are expected to pass the tests, build, Biome checks, and changelog
 ## License
 
 [MIT](LICENSE)
+````
