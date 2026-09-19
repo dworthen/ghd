@@ -65,7 +65,7 @@ ghd push ./docs OWNER/REPO/examples -i '**/*.md'
 
 Pulling with the option, `ghd pull OWNER/REPO . -s`, creates a local `.ghd.config.yaml` file acting like a lock file in ways
 
-````yaml
+```yaml
 # .ghd.config.yaml
 repos:
   - repoDirectory: dOWNER/REPO/some/path/to/directory    commit: 4fsome_commit_hash   include:
@@ -111,4 +111,7 @@ Pull requests are expected to pass the tests, build, Biome checks, and changelog
 ## License
 
 [MIT](LICENSE)
-````
+
+```
+
+```
