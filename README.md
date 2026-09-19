@@ -7,9 +7,11 @@
 ghd pull OWNER/REPO[/path/to/directory] <output_directory> --include '**/*.md'
 ```
 
-## Install
+## Requirements
 
-- Requires [GitHub CLI](https://cli.github.com/) installed and authenticated with `gh auth login
+- [GitHub CLI](https://cli.github.com/) installed and authenticated with `gh auth login`.
+
+## Install
 
 ### NPM
 
