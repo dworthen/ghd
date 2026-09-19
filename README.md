@@ -76,6 +76,8 @@ repos:
     outputDirectory: testing.he `ghd.config.yaml` can be used to restore every entry at its recorded commit:
 ```
 
+To install from a lock file run `ghd install`.
+
 `ghd install` can be pointed at other ghd config files including remote files hosted on GitHub using the `gh:` prefix:
 
 ```sh
