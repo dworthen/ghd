@@ -68,7 +68,8 @@ Pulling with the save option, `ghd pull OWNER/REPO . -s`, creates a local `.ghd.
 ```yaml
 # .ghd.config.yaml
 repos:
-  - repoDirectory: dOWNER/REPO/some/path/to/directory    commit: 4fsome_commit_hash   include:
+  - repoDirectory: dOWNER/REPO/some/path/to/directory
+    commit: 4fsome_commit_hash   include:
       []
     exclude:
       []
