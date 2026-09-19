@@ -116,7 +116,3 @@ Pull requests are expected to pass the tests, build, Biome checks, and changelog
 ## License
 
 [MIT](LICENSE)
-
-```
-
-```
