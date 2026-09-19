@@ -1,0 +1,10 @@
+timestamp: 1789825991286
+version: 1.0.0
+changeTypes: 
+  - Change
+changes: 
+  - type: Change
+    timestamp: 1789825790663
+    sha: 95256cd90f8db5b6c34665804dd873b1de4fa839
+    shortSha: 95256cd
+    description: Refactor for v1 release.
