@@ -63,7 +63,7 @@ ghd push ./docs OWNER/REPO/examples -i '**/*.md'
 
 ## Lock files
 
-Pulling with the option, `ghd pull OWNER/REPO . -s`, creates a local `.ghd.config.yaml` file acting like a lock file in ways
+Pulling with the save option, `ghd pull OWNER/REPO . -s`, creates a local `.ghd.config.yaml` file acting like a lock file in ways
 
 ```yaml
 # .ghd.config.yaml
