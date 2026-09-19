@@ -81,7 +81,8 @@ To install from a lock file run `ghd install`.
 `ghd install` can be pointed at other ghd config files including remote files hosted on GitHub using the `gh:` prefix:
 
 ```sh
-ghd install path/to/downloa.ghd.config.yamlstall gh:OWNER/REPO/path/to/ghd.con.fig.yaml
+ghd install path/to/.ghd.config.yaml
+ghd install gh:OWNER/REPO/path/to/.ghd.config.yaml
 ```
 
 ## Command reference
