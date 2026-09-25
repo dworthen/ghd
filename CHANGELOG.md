@@ -6,11 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html),
 and is managed by [Changelog](https://github.com/dworthen/changelog).
 
-## Unreleased - 2026-09-25
+## 1.0.1 - 2026-09-25
 
 ### Fix
 
-unknown: Remove force flag.
+c067960: Remove force flag.
 
 ## 1.0.0 - 2026-09-19
 
