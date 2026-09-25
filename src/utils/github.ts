@@ -1,6 +1,6 @@
 import { relative } from 'node:path'
 import { $, Glob } from 'bun'
-import { getFiles, isDirectory, rmDir } from './directory'
+import { getFiles } from './directory'
 import { getValue } from './records'
 import { resolvePath } from './resolvePath'
 
