@@ -410,16 +410,8 @@ export async function downloadFiles(
   include: string[],
   exclude: string[],
   targetDirectory: string,
-  force: boolean,
 ): Promise<void> {
   targetDirectory = resolvePath(targetDirectory)
-
-  if (await isDirectory(targetDirectory)) {
-    if (!force) {
-      throw new Error(`Target directory already exists: ${targetDirectory}`)
-    }
-    await rmDir(targetDirectory)
-  }
 
   const {
     owner,

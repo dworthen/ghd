@@ -44,14 +44,6 @@ export const pullCmd = createCommand(
         isRequired: true,
         default: '.ghd.config.yaml',
       },
-      force: {
-        type: 'boolean',
-        shortFlag: 'f',
-        description:
-          'Force download even if the target directory already exists',
-        isRequired: false,
-        default: false,
-      },
     },
   },
   async (args) => {
@@ -72,7 +64,7 @@ export const pullCmd = createCommand(
     const exclude = args.flags.exclude
     const out = outputDirectory.replace(/\\/g, '/')
 
-    await downloadFiles(repoPath, include, exclude, out, args.flags.force)
+    await downloadFiles(repoPath, include, exclude, out)
 
     if (args.flags.save) {
       const { commit } = await parseRepoPath(repoPath)

@@ -16,6 +16,9 @@ macOS, and Windows (x64 and arm64). The published repository is `dworthen/ghd`.
 - **Release tooling:** `@d-dev/changelog` (changelog management) and `@d-dev/bin-upload`
   (binary packaging + GitHub release publishing). Do not manually add changelog entries or run `bun run changelog:add`.
 - **Runtime dependency:** GitHub CLI (`gh`) — required by the `upgrade` command
+- **utils**: Utils directories has utilities for common problems. Use when possible instead of reinventing.s
+
+Prefer using Bun APIs over Node APIs when possible (https://bun.com/llms.txt). Here are some examples:
 
 - Use Bun for file IO https://bun.com/docs/runtime/file-io
 - Use Bun for globbing https://bun.com/docs/runtime/glob
@@ -48,7 +51,37 @@ macOS, and Windows (x64 and arm64). The published repository is `dworthen/ghd`.
 - CI quality gate (`.github/workflows/pr.yml`) runs on every PR: `bun install`,
   `bun run build`, `bun run check`, `bun run check:changelog`.
 
-## Architecture Considerations
+## Architecture Patterns
+
+- Prefer functions over classes.
+- Functions should implement types for composability.
+- Required function parameters should be listed out while optional parameters are grouped into an `options` object.
+- Functions that use fetch to make network request should accept the fetch function as an optional argument for testing capabilities.
+- Use the `generateMockFetch` utlity function when testing functions that use a fetch client.
+- Here is an example of a proper function
+
+```typescript
+type SomeFunctionOptions = {
+  someParam?: bool
+  fetch?: Fetch
+}
+
+type SomeFunctionResult = {
+  ok: false
+  errors: string[]
+} | {
+  ok: true
+  result: string
+}
+
+type SomeFunction = (arg1: string, arg2: bool, options?: SomeFunctionOptions) => Promise<SomeFunctionResult>
+
+const someFunction: SomeFunction = (arg1, arg2, { someParam = false, fetch: fetch } = {}) {
+  ...
+}
+```
+
+## Considerations
 
 - **Entry point:** `src/index.ts` builds the root CLI with `@d-dev/roar`, registers
   subcommands via `cli.addCommand(...)`, and centralizes error handling (graceful Ctrl+C
