@@ -1,0 +1,3 @@
+timestamp: 1790434197997
+type: Fix
+description: Save remote config locally when installing from remote location.

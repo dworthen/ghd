@@ -1,6 +1,8 @@
 import { createCommand } from '@d-dev/roar'
-import { loadConfig, updateGitignore } from '../config'
+import { loadConfig, mergeConfig, saveConfig, updateGitignore } from '../config'
 import { downloadFiles } from '../utils/github'
+
+const LOCAL_CONFIG_PATH = '.ghd.config.yaml'
 
 export const installCmd = createCommand(
   {
@@ -8,9 +10,15 @@ export const installCmd = createCommand(
     description: 'Download every repository in a local configuration',
   },
   async (args) => {
-    const configPath = args.input[0] ?? '.ghd.config.yaml'
+    const configPath = args.input[0] ?? LOCAL_CONFIG_PATH
 
-    const config = await loadConfig(configPath, true)
+    let config = await loadConfig(configPath, true)
+
+    if (configPath.startsWith('gh:')) {
+      const localConfig = await loadConfig(LOCAL_CONFIG_PATH)
+      config = mergeConfig(localConfig, config)
+      await saveConfig(config, LOCAL_CONFIG_PATH)
+    }
 
     for (const repo of config.repos) {
       const repoPath = [repo.repoDirectory, repo.commit].join('@')

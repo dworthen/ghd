@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html),
 and is managed by [Changelog](https://github.com/dworthen/changelog).
 
+## Unreleased - 2026-09-26
+
+### Fix
+
+unknown: Save remote config locally when installing from remote location.
+
 ## 1.0.1 - 2026-09-25
 
 ### Fix

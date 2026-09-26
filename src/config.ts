@@ -107,6 +107,20 @@ export async function saveConfig(config: any, path: string): Promise<void> {
   await Bun.write(file, content)
 }
 
+export function mergeConfig(
+  localConfig: GhdConfig,
+  remoteConfig: GhdConfig,
+): GhdConfig {
+  const merged: GhdConfig = {
+    ...localConfig,
+    repos: localConfig.repos.map((repo) => ({ ...repo })),
+  }
+  for (const repo of remoteConfig.repos) {
+    addRepoToConfig(merged, { ...repo })
+  }
+  return merged
+}
+
 export function addRepoToConfig(
   localConfig: GhdConfig,
   repo: RepoConfig,
