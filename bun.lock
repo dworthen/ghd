@@ -50,19 +50,19 @@
 
     "@d-dev/bin-upload-win-x64": ["@d-dev/bin-upload-win-x64@0.3.0", "", { "os": "win32", "cpu": "x64" }, "sha512-hoUFKOdVpSLb89V5W5kl2QigoB13ZGcjR5JkhYNA+NZHLkmiKaM6RnIhEkxUhmUcQb+qNP2ESq83UotjKaoD6w=="],
 
-    "@d-dev/changelog": ["@d-dev/changelog@1.1.1", "", { "optionalDependencies": { "@d-dev/changelog-darwin-arm64": "1.1.1", "@d-dev/changelog-darwin-x64": "1.1.1", "@d-dev/changelog-linux-arm64": "1.1.1", "@d-dev/changelog-linux-x64": "1.1.1", "@d-dev/changelog-win-arm64": "1.1.1", "@d-dev/changelog-win-x64": "1.1.1" }, "bin": { "changelog": "index.js" } }, "sha512-fOTAP3j5IHNPYMJgYgstKAE6LzGN+9WPBAgS+dxk3a+LnDMx992HV0Cjy9vSaQcdcItsY2PxraGZ/XTWEvWe7g=="],
+    "@d-dev/changelog": ["@d-dev/changelog@1.2.0", "", { "optionalDependencies": { "@d-dev/changelog-darwin-arm64": "1.2.0", "@d-dev/changelog-darwin-x64": "1.2.0", "@d-dev/changelog-linux-arm64": "1.2.0", "@d-dev/changelog-linux-x64": "1.2.0", "@d-dev/changelog-win-arm64": "1.2.0", "@d-dev/changelog-win-x64": "1.2.0" }, "bin": { "changelog": "index.js" } }, "sha512-DgU7A+TF4h7ZBS8AEtZFpQPeCjtj0VvRvgkPZRiwCMPtm3RnMbbV/ZK7E3dQcR9b2i8SPjbuBYw24IzAQQtxFA=="],
 
-    "@d-dev/changelog-darwin-arm64": ["@d-dev/changelog-darwin-arm64@1.1.1", "", { "os": "darwin", "cpu": "arm64" }, "sha512-17WIDe5hqWEqz635fKY9TuetE3jwXlYq5jjUywFte2IGxUhi+uObXMU7torb00YxJmy8UmriLkrYjZcBtWPnKw=="],
+    "@d-dev/changelog-darwin-arm64": ["@d-dev/changelog-darwin-arm64@1.2.0", "", { "os": "darwin", "cpu": "arm64" }, "sha512-c0fkutpbz8SHINoWVvOt6OpAndIAK+SuDgG00am+OTqJLdlQ+diYknxdBUXl51UV0jxK82cuHsDcbvfUHFsh6Q=="],
 
-    "@d-dev/changelog-darwin-x64": ["@d-dev/changelog-darwin-x64@1.1.1", "", { "os": "darwin", "cpu": "x64" }, "sha512-kAiNoQoi1VJWazagwdzLOT8lxIAyXGul1fJTkfEas3RAB7EumdhWktn4KEONF4I+ySJGRC8t16ofAidg6a9ERw=="],
+    "@d-dev/changelog-darwin-x64": ["@d-dev/changelog-darwin-x64@1.2.0", "", { "os": "darwin", "cpu": "x64" }, "sha512-Ghe31dyQthHL+sXEixaiaNqRYZy9qlIrQ7E2tt5OHAhicDOlFROloa5uyy6rn5xuuDQ6NhMxaZEnZ/PCvHTJkQ=="],
 
-    "@d-dev/changelog-linux-arm64": ["@d-dev/changelog-linux-arm64@1.1.1", "", { "os": "linux", "cpu": "arm64" }, "sha512-nQ5sj0SgOSpcUboj9/7vifknWaQY0zK/D9Ps2BVreJQbUXfSY1TO1K4Ftp3In5lcee8xMH87BGywxMp/jy/hXw=="],
+    "@d-dev/changelog-linux-arm64": ["@d-dev/changelog-linux-arm64@1.2.0", "", { "os": "linux", "cpu": "arm64" }, "sha512-3yN+A9DCOZGjdggYW3pvXcI6HLDqdRNaDQ/Idwke65NwP3uBDvr1hjkuP6CILa0AGDBQ2FZ19Ll9yFv9PM1CmQ=="],
 
-    "@d-dev/changelog-linux-x64": ["@d-dev/changelog-linux-x64@1.1.1", "", { "os": "linux", "cpu": "x64" }, "sha512-YjpTa5QpX7hOJU+nOYqVZLGr9UQvFMn0nvh4HEcZZDgRQ4noeOOk4oUr46g13swRkDs+6vJYnCb91TYektM0iQ=="],
+    "@d-dev/changelog-linux-x64": ["@d-dev/changelog-linux-x64@1.2.0", "", { "os": "linux", "cpu": "x64" }, "sha512-JX8971eqlDB6YCFrxy6QbPyHxvn9fZojdXzKvo6mP1YrlwbicJV4jUwTBR6tclPjWvZDk/xSepIMuD359K+afA=="],
 
-    "@d-dev/changelog-win-arm64": ["@d-dev/changelog-win-arm64@1.1.1", "", { "os": "win32", "cpu": "arm64" }, "sha512-SJjxD6NRkWw47/eA5wwTKqGaBbd34jt40E1LM/q6DxGF+YSP9Ee7uomZO15ErKnJjes2Y/UgBb2aqZk+9Aqq8g=="],
+    "@d-dev/changelog-win-arm64": ["@d-dev/changelog-win-arm64@1.2.0", "", { "os": "win32", "cpu": "arm64" }, "sha512-b6Us/3xi4dPuAmXb8kE+BOHVWtAkStzHypSuOyZi2Eubf90b4TSIdLm/Ks4CHosYtgz7zqMGJlTQopzMPkXfMA=="],
 
-    "@d-dev/changelog-win-x64": ["@d-dev/changelog-win-x64@1.1.1", "", { "os": "win32", "cpu": "x64" }, "sha512-8I+93pP+AHcg+ayF85eNdkcQpHQTEBlLcCcrpDoQXCYcbDus+8axPayGaQms+qBa0L1uTLJYgNJue5C/3dQgCw=="],
+    "@d-dev/changelog-win-x64": ["@d-dev/changelog-win-x64@1.2.0", "", { "os": "win32", "cpu": "x64" }, "sha512-GcnKEwSJ14xeFPh8uMTIkHlmTNFpxAzL+eXYh2r2rIfJbRZg1w1cqFKn/MeHUtorYpTztSmgY8E0mOSaWs3/6Q=="],
 
     "@d-dev/roar": ["@d-dev/roar@0.0.4", "", { "dependencies": { "meow": "^14.1.0" } }, "sha512-/pKTvvpef2pjXNnLpqsHyJRO41T/TZonhw3lNu97Y/7pPtub0Sz0vim+Ajrgp27Ye8D5dPn/m0ckoZJUFy86jg=="],
 
