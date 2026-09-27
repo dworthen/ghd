@@ -4,6 +4,7 @@ import { deleteCmd } from './cmds/delete'
 import { installCmd } from './cmds/install'
 import { pullCmd } from './cmds/pull'
 import { pushCmd } from './cmds/push'
+import { updateCmd } from './cmds/update'
 import { cleanupStaleUpgrade, upgradeCmd } from './cmds/upgrade'
 
 const cli = createCommand({
@@ -16,6 +17,7 @@ const cli = createCommand({
 cli.addCommand('pull', pullCmd)
 cli.addCommand('push', pushCmd)
 cli.addCommand('install', installCmd)
+cli.addCommand('update', updateCmd)
 cli.addCommand('delete', deleteCmd)
 cli.addCommand('upgrade', upgradeCmd)
 

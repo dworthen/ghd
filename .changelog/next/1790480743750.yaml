@@ -1,0 +1,3 @@
+timestamp: 1790480743750
+type: Add
+description: Add update command to redownload configured repos at their latest commit.

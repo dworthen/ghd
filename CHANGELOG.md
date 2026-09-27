@@ -8,9 +8,13 @@ and is managed by [Changelog](https://github.com/dworthen/changelog).
 
 ## Unreleased - 2026-09-26
 
+### Add
+
+unknown: Add update command to redownload configured repos at their latest commit.
+
 ### Fix
 
-unknown: Save remote config locally when installing from remote location.
+ec0714e: Save remote config locally when installing from remote location.
 
 ## 1.0.1 - 2026-09-25
 
