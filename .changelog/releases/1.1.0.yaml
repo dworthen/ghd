@@ -1,0 +1,16 @@
+timestamp: 1790483031301
+version: 1.1.0
+changeTypes: 
+  - Add
+  - Fix
+changes: 
+  - type: Fix
+    timestamp: 1790434197997
+    sha: ec0714e7a27faad6e43d594235db3970732ef5d5
+    shortSha: ec0714e
+    description: Save remote config locally when installing from remote location.
+  - type: Add
+    timestamp: 1790480743750
+    sha: 7716cd32472848ebeaa345f7a4126ff50ff00c42
+    shortSha: 7716cd3
+    description: Add update command to redownload configured repos at their latest commit.
