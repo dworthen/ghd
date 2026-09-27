@@ -1,4 +1,4 @@
-import { getFileContents, parseRepoPath } from './utils/github'
+import { downloadFiles, getFileContents, parseRepoPath } from './utils/github'
 import { isRecord } from './utils/records'
 import { resolvePath } from './utils/resolvePath'
 
@@ -163,6 +163,65 @@ export function selectReposForUpdate(
     return { ok: false, missing }
   }
   return { ok: true, repos: matched }
+}
+
+type DownloadFiles = (
+  repoPath: string,
+  include: string[],
+  exclude: string[],
+  targetDirectory: string,
+) => Promise<{ commit: string }>
+
+export type UpdateReposOptions = {
+  download?: DownloadFiles
+  updateGitignore?: (target: string) => Promise<void>
+  saveConfig?: (config: GhdConfig, path: string) => Promise<void>
+}
+
+export type UpdateReposResult =
+  | { ok: true; updated: RepoConfig[] }
+  | { ok: false; missing: string[] }
+
+export async function updateRepos(
+  config: GhdConfig,
+  configPath: string,
+  targets: string[],
+  {
+    download = downloadFiles,
+    updateGitignore: gitignore = updateGitignore,
+    saveConfig: save = saveConfig,
+  }: UpdateReposOptions = {},
+): Promise<UpdateReposResult> {
+  const selection = selectReposForUpdate(config, targets)
+  if (!selection.ok) {
+    return selection
+  }
+
+  const updated: RepoConfig[] = []
+  if (selection.repos.length === 0) {
+    return { ok: true, updated }
+  }
+
+  try {
+    for (const repo of selection.repos) {
+      console.log(
+        `Updating repository: ${repo.repoDirectory} to ${repo.outputDirectory}`,
+      )
+      const { commit } = await download(
+        repo.repoDirectory,
+        repo.include,
+        repo.exclude,
+        repo.outputDirectory,
+      )
+      repo.commit = commit
+      await gitignore(repo.outputDirectory)
+      updated.push(repo)
+    }
+  } finally {
+    await save(config, configPath)
+  }
+
+  return { ok: true, updated }
 }
 
 export async function updateGitignore(target: string): Promise<void> {

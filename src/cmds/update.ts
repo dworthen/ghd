@@ -1,11 +1,5 @@
 import { createCommand } from '@d-dev/roar'
-import {
-  loadConfig,
-  saveConfig,
-  selectReposForUpdate,
-  updateGitignore,
-} from '../config'
-import { downloadFiles } from '../utils/github'
+import { loadConfig, updateRepos } from '../config'
 
 const LOCAL_CONFIG_PATH = '.ghd.config.yaml'
 
@@ -36,38 +30,19 @@ export const updateCmd = createCommand(
     }
 
     const config = await loadConfig(configPath, true)
-
     const targets = args.input.filter((target) => target.trim() !== '')
-    const selection = selectReposForUpdate(config, targets)
 
-    if (!selection.ok) {
+    const result = await updateRepos(config, configPath, targets)
+
+    if (!result.ok) {
       console.error(
-        `The following repositories were not found in ${configPath}: ${selection.missing.join(', ')}`,
+        `The following repositories were not found in ${configPath}: ${result.missing.join(', ')}`,
       )
       process.exit(1)
     }
 
-    if (selection.repos.length === 0) {
+    if (result.updated.length === 0) {
       console.log(`No repositories to update in ${configPath}.`)
-      return
-    }
-
-    try {
-      for (const repo of selection.repos) {
-        console.log(
-          `Updating repository: ${repo.repoDirectory} to ${repo.outputDirectory}`,
-        )
-        const { commit } = await downloadFiles(
-          repo.repoDirectory,
-          repo.include,
-          repo.exclude,
-          repo.outputDirectory,
-        )
-        repo.commit = commit
-        await updateGitignore(repo.outputDirectory)
-      }
-    } finally {
-      await saveConfig(config, configPath)
     }
   },
 )

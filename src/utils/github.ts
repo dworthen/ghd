@@ -296,8 +296,9 @@ export async function getFileContents(
   repo: string,
   path: string,
   token: string,
+  ref?: string,
 ): Promise<GithubFileContentsResponse> {
-  const url = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${path}`
+  const url = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${path}${ref ? `?ref=${encodeURIComponent(ref)}` : ''}`
   const response = await fetch(url, {
     headers: {
       Accept: 'application/vnd.github+json',
@@ -346,13 +347,13 @@ export async function getExistingSha(
 export async function getTree(
   owner: string,
   repo: string,
-  branch: string,
+  ref: string,
   subTree: string,
   include: string[],
   exclude: string[],
   token: string,
 ): Promise<[string, string][]> {
-  const url = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/git/trees/${encodeURIComponent(branch)}?recursive=1`
+  const url = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/git/trees/${encodeURIComponent(ref)}?recursive=1`
   const response = await fetch(url, {
     headers: {
       Accept: 'application/vnd.github+json',
@@ -395,9 +396,10 @@ export async function downloadFile(
   repoPath: string,
   to: string,
   token: string,
+  ref?: string,
 ): Promise<void> {
   to = resolvePath(to)
-  const data = await getFileContents(owner, repo, repoPath, token)
+  const data = await getFileContents(owner, repo, repoPath, token, ref)
   const file = Bun.file(to)
   const contents = data.content
     ? Buffer.from(data.content.replace(/\s+/g, ''), 'base64')
@@ -414,12 +416,12 @@ export async function downloadFiles(
   targetDirectory = resolvePath(targetDirectory)
 
   const repoInfo = await parseRepoPath(repoPath)
-  const { owner, repo, branch, path: subTree, token } = repoInfo
+  const { owner, repo, commit, path: subTree, token } = repoInfo
 
   const files = await getTree(
     owner,
     repo,
-    branch,
+    commit,
     subTree,
     include,
     exclude,
@@ -429,7 +431,7 @@ export async function downloadFiles(
   await Promise.all(
     files.map(async ([from, to]) => {
       const targetPath = resolvePath(targetDirectory, to)
-      await downloadFile(owner, repo, from, targetPath, token)
+      await downloadFile(owner, repo, from, targetPath, token, commit)
       console.log(`Downloaded: ${to} -> ${relative(process.cwd(), targetPath)}`)
     }),
   )

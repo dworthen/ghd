@@ -4,6 +4,7 @@ import {
   mergeConfig,
   type RepoConfig,
   selectReposForUpdate,
+  updateRepos,
 } from './config'
 
 function repo(overrides: Partial<RepoConfig> = {}): RepoConfig {
@@ -103,5 +104,107 @@ describe('selectReposForUpdate', () => {
     if (!result.ok) {
       expect(result.missing).toEqual(['a', 'c/c'])
     }
+  })
+})
+describe('updateRepos', () => {
+  function baseConfig(): GhdConfig {
+    return {
+      repos: [
+        repo({
+          repoDirectory: 'a/a',
+          commit: 'old-a',
+          outputDirectory: 'outA',
+        }),
+        repo({
+          repoDirectory: 'b/b',
+          commit: 'old-b',
+          outputDirectory: 'outB',
+        }),
+      ],
+    }
+  }
+
+  test('re-pins each repo to the downloaded commit and reports updated repos', async () => {
+    const config = baseConfig()
+    const downloaded: string[] = []
+    const gitignored: string[] = []
+    const saved: Array<[GhdConfig, string]> = []
+
+    const result = await updateRepos(config, 'cfg.yaml', [], {
+      download: async (repoPath) => {
+        downloaded.push(repoPath)
+        return { commit: `new-${repoPath}` }
+      },
+      updateGitignore: async (target) => {
+        gitignored.push(target)
+      },
+      saveConfig: async (c, p) => {
+        saved.push([c, p])
+      },
+    })
+
+    expect(result).toEqual({ ok: true, updated: config.repos })
+    expect(config.repos.map((r) => r.commit)).toEqual(['new-a/a', 'new-b/b'])
+    expect(downloaded).toEqual(['a/a', 'b/b'])
+    expect(gitignored).toEqual(['outA', 'outB'])
+    expect(saved).toEqual([[config, 'cfg.yaml']])
+  })
+
+  test('persists completed re-pins even when a later download throws', async () => {
+    const config = baseConfig()
+    let saveCount = 0
+
+    const promise = updateRepos(config, 'cfg.yaml', [], {
+      download: async (repoPath) => {
+        if (repoPath === 'b/b') throw new Error('boom')
+        return { commit: `new-${repoPath}` }
+      },
+      updateGitignore: async () => {},
+      saveConfig: async () => {
+        saveCount++
+      },
+    })
+
+    await expect(promise).rejects.toThrow('boom')
+    expect(config.repos[0]!.commit).toBe('new-a/a')
+    expect(config.repos[1]!.commit).toBe('old-b')
+    expect(saveCount).toBe(1)
+  })
+
+  test('returns missing targets without downloading or saving', async () => {
+    const config = baseConfig()
+    let downloadCount = 0
+    let saveCount = 0
+
+    const result = await updateRepos(config, 'cfg.yaml', ['a/a', 'c/c'], {
+      download: async () => {
+        downloadCount++
+        return { commit: 'x' }
+      },
+      updateGitignore: async () => {},
+      saveConfig: async () => {
+        saveCount++
+      },
+    })
+
+    expect(result).toEqual({ ok: false, missing: ['c/c'] })
+    expect(downloadCount).toBe(0)
+    expect(saveCount).toBe(0)
+  })
+
+  test('does not save when there are no repos to update', async () => {
+    const config: GhdConfig = { repos: [] }
+    let saveCount = 0
+
+    const result = await updateRepos(config, 'cfg.yaml', [], {
+      download: async () => ({ commit: 'x' }),
+      updateGitignore: async () => {},
+      saveConfig: async () => {
+        saveCount++
+      },
+    })
+
+    expect(result).toEqual({ ok: true, updated: [] })
+    expect(saveCount).toBe(0)
   })
 })
