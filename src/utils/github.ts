@@ -410,16 +410,11 @@ export async function downloadFiles(
   include: string[],
   exclude: string[],
   targetDirectory: string,
-): Promise<void> {
+): Promise<RepoInfo> {
   targetDirectory = resolvePath(targetDirectory)
 
-  const {
-    owner,
-    repo,
-    branch,
-    path: subTree,
-    token,
-  } = await parseRepoPath(repoPath)
+  const repoInfo = await parseRepoPath(repoPath)
+  const { owner, repo, branch, path: subTree, token } = repoInfo
 
   const files = await getTree(
     owner,
@@ -438,6 +433,8 @@ export async function downloadFiles(
       console.log(`Downloaded: ${to} -> ${relative(process.cwd(), targetPath)}`)
     }),
   )
+
+  return repoInfo
 }
 
 export async function uploadFile(

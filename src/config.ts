@@ -136,6 +136,35 @@ export function addRepoToConfig(
   }
 }
 
+export type SelectReposForUpdateResult =
+  | { ok: true; repos: RepoConfig[] }
+  | { ok: false; missing: string[] }
+
+export function selectReposForUpdate(
+  config: GhdConfig,
+  targets: string[],
+): SelectReposForUpdateResult {
+  if (targets.length === 0) {
+    return { ok: true, repos: config.repos }
+  }
+
+  const matched: RepoConfig[] = []
+  const missing: string[] = []
+  for (const target of targets) {
+    const found = config.repos.find((repo) => repo.repoDirectory === target)
+    if (found) {
+      matched.push(found)
+    } else {
+      missing.push(target)
+    }
+  }
+
+  if (missing.length > 0) {
+    return { ok: false, missing }
+  }
+  return { ok: true, repos: matched }
+}
+
 export async function updateGitignore(target: string): Promise<void> {
   const path = resolvePath('.gitignore')
   const file = Bun.file(path)

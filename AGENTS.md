@@ -14,7 +14,8 @@ macOS, and Windows (x64 and arm64). The published repository is `dworthen/ghd`.
 - **Interactive prompts:** `@inquirer/prompts`
 - **Lint/format:** Biome (`@biomejs/biome`)
 - **Release tooling:** `@d-dev/changelog` (changelog management) and `@d-dev/bin-upload`
-  (binary packaging + GitHub release publishing). Do not manually add changelog entries or run `bun run changelog:add`.
+  (binary packaging + GitHub release publishing). Add a changelog entry for user-facing
+  changes with `bun run changelog:add`.
 - **Runtime dependency:** GitHub CLI (`gh`) — required by the `upgrade` command
 - **utils**: Utils directories has utilities for common problems. Use when possible instead of reinventing.s
 
